@@ -46,7 +46,7 @@ const onSubmit = async(values:RegisterFormValues)=>{
           toast.success("Registration successful! Please check your email to verify your account.");
           router.push("/");
         },
-        onError: (ctx) => {
+        onError: (ctx: { error: { message: any; }; }) => {
         toast.error(`Registration failed: ${ctx.error.message}`); 
       }
     }
