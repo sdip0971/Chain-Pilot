@@ -2,7 +2,7 @@ import { auth } from '@/lib/auth';
 import { initTRPC, TRPCError } from '@trpc/server';
 import { headers } from 'next/headers';
 import { cache } from 'react';
-import { redirect } from 'next/navigation';
+
 export const createTRPCContext = cache(async () => {
   /**
    * @see: https://trpc.io/docs/server/context
@@ -28,6 +28,6 @@ export const protectedProcedure = baseProcedure.use(async({ ctx, next }) => {
     headers: await headers(),
   });
   if(!session){
-    redirect('/login');
+    throw new TRPCError({code:"UNAUTHORIZED"})
   }
  return next({ctx:{...ctx,auth:session}}) });
