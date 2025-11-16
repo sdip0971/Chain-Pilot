@@ -20,6 +20,11 @@ export const execute = inngest.createFunction(
         model: openAI("gpt-4"),
         system: "you are a helpful assistant that helps to generate text based on user prompt",
         prompt: "what is 2+2",
+        experimental_telemetry:{
+          isEnabled:true,
+          recordInputs:true,
+          recordOutputs:true, 
+        }
       }
     );
      const { steps:geministeps } = await step.ai.wrap(
