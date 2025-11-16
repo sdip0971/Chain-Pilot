@@ -12,6 +12,15 @@ const nextConfig: NextConfig = {
     "http://127.0.0.1:3000",
     "http://192.168.100.107:3000" // add any other LAN/dev origins you use
   ],
+  async redirects(){
+    return [
+      {
+        source:"/",
+        destination:"/workflows",
+        permanent:false
+      }
+    ]
+  }
 };
 
 export default withSentryConfig(nextConfig, {
