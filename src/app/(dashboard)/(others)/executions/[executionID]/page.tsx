@@ -6,8 +6,8 @@ interface PageProps {
     };
 }
 export default async function ExecutionPage({params}:PageProps) {
-    await requireAuth();
-    
+
+      await requireAuth()
     const executionID = await params.executionID;
 return <div>Execution Page {executionID}</div>;
 }

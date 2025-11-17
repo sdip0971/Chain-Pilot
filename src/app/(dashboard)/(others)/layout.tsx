@@ -1,6 +1,6 @@
 import { AppHeader } from "@/components/ui/mycomponents/app-header"
 
-const Layout = ({children}:{children:React.ReactNode})=>{
+ const Layout = ({children}:{children:React.ReactNode})=>{
     return (
         <>
         <AppHeader/>
@@ -9,3 +9,4 @@ const Layout = ({children}:{children:React.ReactNode})=>{
             </>
     )
 }
+export default Layout
