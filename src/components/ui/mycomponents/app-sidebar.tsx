@@ -1,4 +1,5 @@
 "use client"
+import { useHasActiveSubscription} from "@/hooks/use-subscription"
 import {
     CreditCardIcon,
     LogOutIcon,
@@ -15,6 +16,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { title } from "process"
 import { SidebarContent } from "../sidebar"
 import { PathnameContext } from "next/dist/shared/lib/hooks-client-context.shared-runtime"
+import { authClient } from "@/lib/auth-client"
 const menuitems = [
   {
     title: "Workflows",
@@ -48,6 +50,7 @@ const menuitems = [
   }
 ];
 function AppSidebar() {
+  const {HasActiveSubscription,isLoading} =useHasActiveSubscription()
     const router =useRouter()
     const pathname = usePathname();
   return (
@@ -66,43 +69,53 @@ function AppSidebar() {
         <SidebarContent>
           {menuitems.map((Group) => {
             return (
-              <>
-                <SidebarGroup key={Group.title}>
-                  <SidebarGroupContent>
-                    <SidebarMenu>
-                      {Group.items.map((item) => {
-                        return (
-                          <>
-                            <SidebarMenuItem key={item.title}>
-                              <SidebarMenuButton
-                                tooltip={item.title}
-                                isActive={
-                                  item.url === "/"
-                                    ? pathname === "/"
-                                    : pathname.startsWith(item.url)
-                                }
-                                asChild
-                                className="gap-x-4 h-10 px-4"
-                              >
-                                <Link href={item.url} prefetch>
-                                  {/* Link can prefetch what is in href so that page loads faster as if it was cached */}
-                                  <item.icon className="size-4" />
-                                  <span>{item.title}</span>
-                                </Link>
-                              </SidebarMenuButton>
-                            </SidebarMenuItem>
-                          </>
-                        );
-                      })}
-                    </SidebarMenu>
-                  </SidebarGroupContent>
-                </SidebarGroup>
-              </>
+              <SidebarGroup key={Group.title}>
+                <SidebarGroupContent>
+                  <SidebarMenu key={Group.title}>
+                    {Group.items.map((item) => {
+                      return (
+                        <SidebarMenuItem key={item.title}>
+                          <SidebarMenuButton
+                            tooltip={item.title}
+                            isActive={
+                              item.url === "/"
+                                ? pathname === "/"
+                                : pathname.startsWith(item.url)
+                            }
+                            asChild
+                            className="gap-x-4 h-10 px-4"
+                          >
+                            <Link href={item.url} prefetch>
+                              {/* Link can prefetch what is in href so that page loads faster as if it was cached */}
+                              <item.icon className="size-4" />
+                              <span>{item.title}</span>
+                            </Link>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      );
+                    })}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
             );
           })}
         </SidebarContent>
         <SidebarFooter>
           <SidebarMenu>
+            {!HasActiveSubscription && !isLoading && (
+              <SidebarMenuButton
+                tooltip="Upgrade to Pro"
+                className="gap-x-4 h-10 px-4"
+                onClick={() => {
+                  authClient.checkout({
+                    slug: "pro",
+                  });
+                }}
+              >
+                <CreditCardIcon className="h-4 w-4" />
+                <span>Upgrage to Pro</span>
+              </SidebarMenuButton>
+            )}
             <SidebarMenuItem>
               <SidebarMenuButton
                 tooltip="Billing Portal"
@@ -111,6 +124,14 @@ function AppSidebar() {
               >
                 <CreditCardIcon className="h-4 w-4" />
                 <span>Billing Portal</span>
+              </SidebarMenuButton>
+              <SidebarMenuButton
+                tooltip="Logout"
+                className="gap-x-4 h-10 px-4"
+                onClick={async() => { await authClient.signOut()}}
+              >
+                <CreditCardIcon className="h-4 w-4" />
+                <span>Logout</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>

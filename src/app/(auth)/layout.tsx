@@ -1,7 +1,7 @@
 import Link from "next/link";
 import React from "react";
 import Image from "next/image";
-export default function layout({children}:{children : React.ReactNode}){
+export default function Layout({children}:{children : React.ReactNode}){
     return (
         <div>
             <div className="bg-muted flex min-h-svh flex-col justify-center gap-6 items-center p-6 md:p-10 min-w-screen">
