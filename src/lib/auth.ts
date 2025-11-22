@@ -23,24 +23,24 @@ export const auth = betterAuth({
     autoSignIn: true,
   },
   trustedOrigins: getTrustedOrigins(),
-  plugins: [
-    polar({
-      client: polarClient() as any,
-      createCustomerOnSignUp: true,
-      use: [
-        checkout({
-          products: [
-            {
-              productId: "7fd67e7c-daf2-4493-ae06-c455087e35f6",
-              slug: "Pro",
-            },
-          ],
-          successUrl:process.env.POLAR_SUCCESS_URL,
-          authenticatedUsersOnly:true,
-        }),
-        portal(),
+  // plugins: [
+  //   polar({
+  //     client: polarClient() as any,
+  //     createCustomerOnSignUp:false,
+  //     use: [
+  //       checkout({
+  //         products: [
+  //           {
+  //             productId: "7fd67e7c-daf2-4493-ae06-c455087e35f6",
+  //             slug: "Pro",
+  //           },
+  //         ],
+  //         successUrl:process.env.POLAR_SUCCESS_URL,
+  //         authenticatedUsersOnly:true,
+  //       }),
+  //       portal(),
         
-      ],
-    }),
-  ],
+  //     ],
+  //   }),
+  // ],
 });

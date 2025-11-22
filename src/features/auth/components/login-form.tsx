@@ -30,6 +30,7 @@ import { cn } from "@/lib/utils";
 import { Car } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
+import Error from "next/error";
 const loginSchema = z.object({
   email: z.string().min(1, "Email is required").email("Invalid email address"),
   password: z
@@ -49,15 +50,19 @@ export function LoginForm() {
   });
   const onSubmit = async (values: LoginFormValues) => {
     try {
-      await authClient.signIn.email({
+      const result = await authClient.signIn.email({
         email: values.email,
         password: values.password,
         callbackURL: "/",
       });
+      if(result.error){
+       toast.error(result.error.message);
+       return;
+      }
       router.push("/");
     } catch (err: any) {
       toast.error(
-        err?.error?.message || err?.message || "Something went wrong"
+        err?.error?.message || err?.message || "Something went wrong"||err?.cause?.message
       );
     }
   };
