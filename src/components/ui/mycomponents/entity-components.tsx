@@ -41,14 +41,14 @@ function EntityHeader({
         )}
       </div>
       {onNew && !newButtonHref && (
-        <Button disabled={isCreating}>
+        <Button disabled={isCreating} onClick={onNew}>
           <PlusIcon className="size-4" />
           {newButtonLabel}
         </Button>
       )}
       {!onNew && newButtonHref && (
-        <Button size='sm' asChild>
-          <Link href={newButtonHref} prefetch/>
+        <Button size="sm" asChild>
+          <Link href={newButtonHref} prefetch />
           <PlusIcon className="size-4" />
           {newButtonLabel}
         </Button>

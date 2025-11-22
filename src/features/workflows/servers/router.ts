@@ -1,9 +1,9 @@
-import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
+import { createTRPCRouter, premiumProcedure, protectedProcedure } from "@/trpc/init";
 import {generateSlug} from "random-word-slugs"
 import prisma from "@/lib/db";
 import z from "zod";
 export const workflowsRouter = createTRPCRouter({
-  create: protectedProcedure.mutation(async ({ ctx }: any) => {
+  create: premiumProcedure.mutation(async ({ ctx }: any) => {
     return prisma.workflow.create({
       data: {
         name: generateSlug(3),
@@ -11,7 +11,7 @@ export const workflowsRouter = createTRPCRouter({
       },
     });
   }),
-  remove: protectedProcedure
+  remove: premiumProcedure
     .input(z.object({ id: z.string }))
     .mutation(async ({ ctx, input }: any) => {
       return prisma.workflow.delete({
@@ -21,7 +21,7 @@ export const workflowsRouter = createTRPCRouter({
         },
       });
     }),
-  updateName: protectedProcedure
+  updateName: premiumProcedure
     .input(z.object({ id: z.string, name: z.string() }))
     .mutation(async ({ ctx, input }: any) => {
       return prisma.workflow.update({
@@ -34,7 +34,7 @@ export const workflowsRouter = createTRPCRouter({
         },
       });
     }),
-  getOne: protectedProcedure
+  getOne: premiumProcedure
     .input(z.object({ id: z.string }))
     .query(async ({ ctx, input }: any) => {
       return prisma.workflow.findUnique({
@@ -44,7 +44,7 @@ export const workflowsRouter = createTRPCRouter({
         },
       });
     }),
-  getMany: protectedProcedure
+  getMany: premiumProcedure
     .query(async ({ ctx, input }: any) => {
       return prisma.workflow.findMany({
         where: {
