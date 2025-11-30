@@ -38,12 +38,16 @@ export const workflowsRouter = createTRPCRouter({
   getOne: premiumProcedure
     .input(z.object({ id: z.string }))
     .query(async ({ ctx, input }: any) => {
-      return prisma.workflow.findUnique({
+      const workflow = await prisma.workflow.findUnique({
         where: {
           id: input.id,
           userId: ctx.auth.user.id,
         },
       });
+      if (!workflow) {
+        throw new Error("Workflow not found");
+      }
+      return workflow;
     }),
   getMany: premiumProcedure.input(z.object({
     page : z.number().default(pagination.Default_Page),
