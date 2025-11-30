@@ -16,6 +16,7 @@ import {
   Background,
   Controls,
   MiniMap,
+  Panel,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
@@ -27,6 +28,8 @@ import useSuspenseWorkFlows, { useSuspenseIndividualWorkFlow, useUpdateWorkflows
 import {  SaveIcon } from "lucide-react";
 import Link from "next/link";
 import { useEffect , useRef , useState } from "react";
+import { nodeComponents } from "@/config/node-components";
+import { AddNodeButton } from "./add-node-button";
 
 
 
@@ -46,8 +49,8 @@ const initialEdges = [{ id: "n1-n2", source: "n1", target: "n2" }];
 export const Editor = ({ workflowId }: { workflowId: string }) => {
 
   const { data: workflow } = useSuspenseIndividualWorkFlow(workflowId);
-    const [nodes, setNodes] = useState<Node[]>(initialNodes);
-    const [edges, setEdges] = useState<Edge[]>(initialEdges);
+    const [nodes, setNodes] = useState<Node[]>(workflow.nodes);
+    const [edges, setEdges] = useState<Edge[]>(workflow.edges);
     const onNodesChange: OnNodesChange = useCallback(
       (changes: NodeChange[]) => setNodes((nds) => applyNodeChanges(changes, nds)),
       [setNodes]
@@ -62,23 +65,25 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
     );
  
   return (
-    <div className="size-full">
-      {JSON.stringify(workflow, null, 2)}
+    <div className="  size-full">
       <ReactFlow
         nodes={nodes}
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
-        proOptions={
-            {
-                hideAttribution:true
-            }
-        }
+        proOptions={{
+          hideAttribution: true,
+        }}
+        nodeTypes = {nodeComponents}
+        fitView
       >
-        <Background/>
-       <Controls />
+        <Background />
+        <Controls />
         <MiniMap />
+        <Panel>
+          <AddNodeButton/>  //using panel we can add our custom components in reactflow canvas
+        </Panel>
       </ReactFlow>
     </div>
   );
@@ -94,65 +99,80 @@ export const EditorSaveButton = ({ workflowId }: { workflowId: string }) => {
   );
 };
 export const EditorNameInput = ({ workflowId }: { workflowId: string }) => {
-    const {data:workflow} = useSuspenseIndividualWorkFlow(workflowId);
-    const updateWorkflow = useUpdateWorkflows()
-    const [name,setName] = useState(workflow?.name || "");
-    const [isEditing,setIsEditing] = useState(false);
-    const inputRef = useRef<HTMLInputElement>(null);
-    useEffect(() => {
-      if(isEditing){
-        inputRef.current?.focus();
-      }
-    },[isEditing]);
-    useEffect(()=>{
-   if(isEditing && inputRef.current){
-    inputRef.current.focus();
-    inputRef.current.select();
-   }
-    },[isEditing])
+  const { data: workflow } = useSuspenseIndividualWorkFlow(workflowId);
+  const updateWorkflow = useUpdateWorkflows();
 
-    const handleSave = async () => {
-    if (name === workflow.name){
-        setIsEditing(false);
-        return;
+  const [name, setName] = useState(workflow.name || "");
+  const [isEditing, setIsEditing] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+
+  useEffect(() => {
+    if (workflow?.name) {
+      setName(workflow.name);
     }
+  }, [workflow.name]);
+
+ 
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select(); 
+    }
+  }, [isEditing]);
+
+  const handleSave = async () => {
+   //exit edit mode
     setIsEditing(false);
-    try{ 
-        await updateWorkflow.mutate({ id: workflowId, name });
-     }
-    catch{
-       setName(workflow?.name || "");
 
+    // no change in name so we do none
+    if (name === workflow.name) {
+      return;
     }
-    finally{
-        setIsEditing(false);
+
+    // update
+    try {
+      
+      await updateWorkflow.mutateAsync({ id: workflowId, name });
+    } catch {
+      // if error revert to orignal name
+      setName(workflow.name || "");
     }
+  };
+
+  const handleKeydown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSave();
     }
-    const handleKeydown = (e:React.KeyboardEvent<HTMLInputElement>) => {
-      if(e.key === "Enter"){
-        handleSave();
-      }
-      if(e.key === "Escape"){
-        setName(workflow?.name || "");
-        setIsEditing(false);
-      }
+    if (e.key === "Escape") {
+     
+      setName(workflow.name || "");
+      setIsEditing(false);
     }
-    if(isEditing){
-        return (
-            <Input
-            disabled={updateWorkflow.isPending}
-            ref={inputRef}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            onBlur={handleSave}
-            onKeyDown={handleKeydown}
-            />
-        )
-    }
+  };
+
+  if (isEditing) {
+    return (
+      <BreadcrumbItem>
+        <Input
+          disabled={updateWorkflow.isPending}
+          ref={inputRef}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          onBlur={handleSave}
+          onKeyDown={handleKeydown}
+          className="h-6 py-0 px-2 w-[200px]" // Style to match breadcrumb height
+        />
+      </BreadcrumbItem>
+    );
+  }
 
   return (
-    <BreadcrumbItem onClick={()=>{setIsEditing(true)}}>
-    {workflow?.name}
+    <BreadcrumbItem
+      onClick={() => setIsEditing(true)}
+      className="cursor-pointer hover:underline text-foreground"
+    >
+      {workflow?.name || "Untitled Workflow"} 
     </BreadcrumbItem>
   );
 };
@@ -168,13 +188,11 @@ export const EditorBreadCrumbs = ({ workflowId }: { workflowId: string }) => {
           </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />
-        <BreadcrumbItem>
-          <BreadcrumbLink>{workflowId}</BreadcrumbLink>
-        </BreadcrumbItem>
+        <EditorNameInput workflowId={workflowId} />
       </BreadcrumbList>
     </Breadcrumb>
   );
-};
+}
 export const EditorHeader = ({ workflowId }: { workflowId: string }) => {
 
       return (

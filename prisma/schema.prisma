@@ -8,6 +8,9 @@ generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
 }
+enum NodeType {
+  INITIAl
+}
 
 datasource db {
   provider = "postgresql"
@@ -81,4 +84,35 @@ model Workflow {
 
   userId String
   user User @relation(fields:[userId],references:[id],onDelete:Cascade)
+  Nodes Node[]
+  Connections Connection[]
 }
+model Node {
+  id String @id @default(cuid())
+  name String
+  type NodeType
+  position Json
+  data Json @default("{}")
+  outputConnections Connection[] @relation("SourceNode")
+  inputConnections Connection[] @relation("DestinationNode")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  workflowId String
+  workflow Workflow @relation(fields:[workflowId],references:[id],onDelete:Cascade)
+}
+model Connection {
+  id String @id @default(cuid())
+  SourceNodeId String
+  SourceNode Node @relation("SourceNode",fields:[SourceNodeId],references:[id],onDelete:Cascade)
+    DestinationNodeId String
+  DestinationNode Node @relation("DestinationNode",fields:[DestinationNodeId],references:[id],onDelete:Cascade)
+  target String
+  workflowId String
+  workflow Workflow @relation(fields:[workflowId],references:[id],onDelete:Cascade)
+  fromOutput String @default("main")
+  toInput String @default("main")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+  @@unique([SourceNodeId, DestinationNodeId, fromOutput, toInput, workflowId])
+} 
