@@ -27,6 +27,8 @@ interface Props {
     defaultEndpoint?:string
     // nodeId:string
 }
+export type HttpRequestFormValues = z.infer<typeof formSchema>;
+
  export const HttpRequestDialog = ({ open,onSubmit, onOpenChangeAction, defaultMethod, defaultBody, defaultEndpoint }: Props) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver:zodResolver(formSchema),

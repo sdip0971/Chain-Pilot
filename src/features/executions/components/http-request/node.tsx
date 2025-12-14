@@ -4,7 +4,7 @@ import { NodeProps, Node, useReactFlow } from "@xyflow/react";
 import { memo, useState } from "react";
 import BaseExecutionNode from "@/components/ui/mycomponents/base-execution-node";
 import { GlobeIcon } from "lucide-react";
-import { HttpRequestDialog } from "./dialog";
+import { HttpRequestDialog, HttpRequestFormValues } from "./dialog";
 type HttpRequestNodeData = {
   endpoint?: string;
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
@@ -13,7 +13,36 @@ type HttpRequestNodeData = {
 };
 
 type HttpRequestNodeType = Node<HttpRequestNodeData>;
+// This is a Generic Type provided by React Flow.
 
+// TypeScript
+
+// // React Flow's definition looks like this:
+// type Node<T> = {
+//   id: string;        // Standard hardcoded field
+//   position: {x, y};  // Standard hardcoded field
+//   data: T;           // <--- THE VARIABLE PART
+// }
+
+
+
+
+// Just for memory -> note that here you get the props from react flow here 
+// the parent element is react flow itself 
+// When you pass your list of nodes to it:
+// <ReactFlow nodes={nodes} nodeTypes={nodeComponents} ... />
+//What React Flow does internally
+//nodes.map((node) => {
+//   const Component = nodeTypes[node.type]; // Finds "HttpRequestNode"
+//   return (
+//     <Component
+//       id={node.id}       // <--- AUTOMATICALLY PASSED
+//       data={node.data}   // <--- AUTOMATICALLY PASSED
+//       selected={node.selected}
+//       // ... other internal props
+//     />
+//   );
+// });
 export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeType>) => {
   const [dialogOpen , setDialogOpen] = useState(false);
   const nodeStauts = "initial"
@@ -21,11 +50,7 @@ export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeType>) => {
   const {setNodes} = useReactFlow()
     const nodeData = props.data as HttpRequestNodeData;
   const description = nodeData?.endpoint ? `${nodeData.method || "GET"} ${nodeData.endpoint}` : "Not configured";
-   const handleSubmit = (values: {
-     endpoint: string;
-     method: string;
-     body?: string;
-   }) => {
+   const handleSubmit = (values:HttpRequestFormValues) => {
      setNodes((nodes) =>
        nodes.map((node) => {
          if (node.id === props.id) {
