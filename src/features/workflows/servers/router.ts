@@ -1,11 +1,12 @@
 import { createTRPCRouter, premiumProcedure, protectedProcedure } from "@/trpc/init";
 import {generateSlug} from "random-word-slugs"
 import prisma from "@/lib/db";
-import z from "zod";
+import z, { string } from "zod";
 import type {Node,Edge} from "@xyflow/react"
 import { pagination } from "@/config/constants";
 import { NodeType } from "@/generated/prisma/enums";
 import type {Connection } from "@/generated/prisma/client";
+import { inngest } from "@/inngest/client";
 export const workflowsRouter = createTRPCRouter({
   create: premiumProcedure.mutation(async ({ ctx }: any) => {
     return prisma.workflow.create({
@@ -205,4 +206,20 @@ export const workflowsRouter = createTRPCRouter({
         pageSize,
       };
     }),
+    execute: premiumProcedure.input(z.object({id:z.string()})).mutation(async({ctx, input}:any)=>{
+         const workflow = await prisma.workflow.findUniqueOrThrow({
+          where:{
+            id:input.id,
+            userId : ctx.auth.user.id
+          }
+         })
+         await inngest.send({
+          name : "workflow/execute.workflow",
+          data : {
+            workflowId : input.id
+          } 
+         })
+         return workflow;
+
+    })
 });

@@ -1,5 +1,5 @@
 "use client";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import {
   ReactFlow,
   applyNodeChanges,
@@ -32,6 +32,8 @@ import { nodeComponents } from "@/config/node-components";
 import { AddNodeButton } from "./add-node-button";
 import { useAtomValue, useSetAtom } from "jotai";
 import { editorAtom } from "../store/atoms";
+import { NodeType } from "@/generated/prisma/enums";
+import ExecuteButton from "@/components/ui/mycomponents/execute-button";
 
 
 
@@ -66,6 +68,9 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
       (connection:Connection) => setEdges((eds) => addEdge(connection, eds)),
       [setEdges]
     );
+    const hasManualTrigger = useMemo(()=>{
+      return nodes.some((node)=>node.type===NodeType.MANUAL_TRIGGER)
+    } , [nodes])
 
   return (
     <div className="  size-full">
@@ -104,6 +109,13 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
           <AddNodeButton/>  
           {/* using panel we can add our custom components in reactflow canvas */}
         </Panel>
+         {
+            hasManualTrigger && (
+              <Panel position="bottom-center">
+                <ExecuteButton workflowId ={workflowId}/>
+                </Panel>
+            )
+          }
       </ReactFlow>
     </div>
   );
