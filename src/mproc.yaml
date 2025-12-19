@@ -1,7 +1,5 @@
 procs:
-  ingest:
-    cmd : ["npm", run" , "ingest dev"]
-next:
-  cmd:  ["npm", "run", "dev"]
-
-    
+  inngest:
+    cmd: ["npm", "run", "inngest:dev"]
+  next:
+    cmd: ["npm", "run", "dev"]

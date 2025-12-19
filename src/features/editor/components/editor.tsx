@@ -24,7 +24,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ErrorView,LoadingView } from "@/components/ui/mycomponents/entity-components";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import useSuspenseWorkFlows, { useSuspenseIndividualWorkFlow, useUpdateWorkflow, useUpdateWorkflows } from "@/hooks/use-workflows";
+import useSuspenseWorkFlows, { useAutoSaveWorkflow, useSuspenseIndividualWorkFlow, useUpdateWorkflow, useUpdateWorkflows } from "@/hooks/use-workflows";
 import {  SaveIcon } from "lucide-react";
 import Link from "next/link";
 import { useEffect , useRef , useState } from "react";
@@ -71,6 +71,19 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
     const hasManualTrigger = useMemo(()=>{
       return nodes.some((node)=>node.type===NodeType.MANUAL_TRIGGER)
     } , [nodes])
+    const autoSave = useAutoSaveWorkflow();
+    useEffect(() => {
+    // Debounce to prevent saving on every pixel of movement
+    const timeoutId = setTimeout(() => {
+      autoSave.mutate({
+        id: workflowId,
+        nodes,
+        edges,
+      });
+    }, 1000); // 1 second delay
+
+    return () => clearTimeout(timeoutId);
+  }, [nodes, edges, workflowId]);
 
   return (
     <div className="  size-full">
