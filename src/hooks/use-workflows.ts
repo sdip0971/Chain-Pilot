@@ -110,3 +110,25 @@ export const useExecuteWorkflow = () => {
     })
   );
 };
+
+//silent autosave hook without toasts that i will use to auto save on new node creation
+export const useAutoSaveWorkflow = () => {
+  const queryClient = useQueryClient();
+  const trpc = useTRPC();
+  return useMutation(
+    trpc.workflows.update.mutationOptions({
+      onSuccess: (data) => {
+        // Silent success: No toast notification
+        queryClient.invalidateQueries(trpc.workflows.getMany.queryOptions({}));
+        if (data?.id) {
+          queryClient.invalidateQueries(
+            trpc.workflows.getOne.queryOptions({ id: data.id })
+          );
+        }
+      },
+      onError: (error) => {
+        console.error(`Auto-save failed: ${error.message}`);
+      },
+    })
+  );
+};

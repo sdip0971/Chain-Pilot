@@ -37,8 +37,6 @@ export const workflowsRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.string(),
-
-    
         nodes: z.array(
           z.object({
             id: z.string(),
@@ -50,7 +48,6 @@ export const workflowsRouter = createTRPCRouter({
             data: z.record(z.string(), z.any()).optional(),
           })
         ),
-
         edges: z.array(
           z.object({
             source: z.string(),

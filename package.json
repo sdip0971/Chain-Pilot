@@ -9,7 +9,7 @@
     "lint": "biome check",
     "format": "biome format --write",
     "inngest:dev": "inngest-cli dev",
-    "dev:all": "mprocs"
+    "dev:all": "mprocs -c src/mproc.yaml"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^2.0.44",
@@ -65,6 +65,7 @@
     "inngest": "^3.45.1",
     "input-otp": "^1.4.2",
     "jotai": "^2.15.2",
+    "ky": "^1.14.1",
     "lucide-react": "^0.553.0",
     "mprocs": "^0.7.3",
     "next": "15.5.4",
