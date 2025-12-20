@@ -15,6 +15,7 @@ return result
 
 }
 type HTTP_TRIGGER_DATA = {
+    variableName?:string
     endpoint?:string,
     body?:string
     method? : "GET" | "PUT" | "POST" | "DELETE"
@@ -32,23 +33,42 @@ export const httprequestexecutor : NodeExecutor<HTTP_TRIGGER_DATA> = async({
 if(!data.endpoint){
     throw new NonRetriableError("Endpoint is missing")
 }
+
+if(!data.variableName){
+    throw new NonRetriableError("Variable name not configured")
+}
+
 const result = await step.run("http-request",async()=>{
     const method = data.method || "GET"
     const endpoint = data.endpoint!;
     const options :KyOptions = {method};
     if(["POST","PUT","PATCH"].includes(method)){
         options.body =data?.body
-    }
-    const response = await ky(endpoint,options)
-    const responseData = await response.json().catch(()=>response.text())
-    return {
-        ...context,
-        httpResponse : {
-            status:response.status,
-            statusText:response.statusText,
-            data:responseData
+        options.headers = {
+            "Content-Type" : "application/json",
         }
     }
+    const response = await ky(endpoint,options)
+   
+    const responseData = await response.json().catch(()=>response.text())
+     const responsePayload = {
+        hhtpResponse : {
+        status:response.status,
+        statusText:response.statusText,
+        data:responseData,
+    }
+    }
+    if(data.variableName){
+    return {
+        ...context,
+      [data.variableName] :responsePayload
+    }
+}
+return {
+    ...context,
+    ...responsePayload
+}
+
 })
 // publish success state for http request 
 return result

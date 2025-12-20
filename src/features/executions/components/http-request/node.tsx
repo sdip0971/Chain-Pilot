@@ -6,10 +6,10 @@ import BaseExecutionNode from "@/components/ui/mycomponents/base-execution-node"
 import { GlobeIcon } from "lucide-react";
 import { HttpRequestDialog, HttpRequestFormValues } from "./dialog";
 type HttpRequestNodeData = {
+  variableName?:string,
   endpoint?: string;
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   body?: string;
-
 };
 
 type HttpRequestNodeType = Node<HttpRequestNodeData>;
