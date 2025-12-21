@@ -46,7 +46,6 @@ export const executeWorkflow = inngest.createFunction(
   return {
     workflowid,
     result:context,
-    
   }
   }
 );
