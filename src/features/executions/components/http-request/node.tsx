@@ -5,6 +5,8 @@ import { memo, useState } from "react";
 import BaseExecutionNode from "@/components/ui/mycomponents/base-execution-node";
 import { GlobeIcon } from "lucide-react";
 import { HttpRequestDialog, HttpRequestFormValues } from "./dialog";
+import UseNodeStatus from "@/hooks/use-node-status";
+import { fetchHttpRequestRealtimeToken } from "./action";
 type HttpRequestNodeData = {
   variableName?:string,
   endpoint?: string;
@@ -45,7 +47,12 @@ type HttpRequestNodeType = Node<HttpRequestNodeData>;
 // });
 export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeType>) => {
   const [dialogOpen , setDialogOpen] = useState(false);
-  const nodeStauts = "initial"
+  const nodeStauts = UseNodeStatus({
+    nodeId:props.id,
+    channel:"workflow-execution",
+    topic:"status",
+    refreshToken:fetchHttpRequestRealtimeToken
+  })
   const handleOpenSettings = ()=>setDialogOpen(true)
   const {setNodes} = useReactFlow()
     const nodeData = props.data as HttpRequestNodeData;
