@@ -2,35 +2,58 @@ import type { ComponentProps, HTMLAttributes } from "react";
 
 import { cn } from "@/lib/utils";
 import { NodeStatus } from "./node-status-indicator";
-import { CheckCircle2Icon, Loader2Icon, XCircleIcon } from "lucide-react";
+import { Check, CheckCircle2Icon, Loader2, Loader2Icon, X, XCircleIcon } from "lucide-react";
 interface BaseNodeProps extends ComponentProps<"div"> {
-status?:NodeStatus;
+status?:string;
 
 }
-export function BaseNode({ className,status,  ...props}: BaseNodeProps) {
+export function BaseNode({ className, status, children, ...props }: BaseNodeProps) {
   return (
     <div
       className={cn(
-        "bg-card text-card-foreground relative rounded-sm  border border-muted-foreground bg-card text-card-foreground hover:bg-accent",
-        "hover:ring-1",
+        "group relative rounded-xl border bg-card text-card-foreground shadow-sm transition-all duration-300 ease-in-out",
+        // 1. Base Interaction (Lift & Glow on Hover)
+        "hover:border-primary/50 hover:shadow-md hover:-translate-y-[2px]",
 
-        "[.react-flow\\_\\_node.selected_&]:border-muted-foreground",
-        "[.react-flow\\_\\_node.selected_&]:shadow-lg",
+        // 2. React Flow Selection State (Blue Ring)
+        "[.react-flow__node.selected_&]:border-primary [.react-flow__node.selected_&]:ring-1 [.react-flow__node.selected_&]:ring-primary",
+
+        // 3. Status: Error (Red Glow)
+        status === "error" && "border-red-500/60 shadow-[0_0_20px_-5px_rgba(239,68,68,0.4)]",
+
+        // 4. Status: Success (Green Glow)
+        status === "success" && "border-emerald-500/60 shadow-[0_0_20px_-5px_rgba(16,185,129,0.4)]",
+
+        // 5. Status: Loading (Blue Pulse)
+        status === "loading" && "border-blue-500/60 shadow-[0_0_20px_-5px_rgba(59,130,246,0.4)]",
+
         className
       )}
       tabIndex={0}
       {...props}
     >
-      {props.children}
-      {status === "error" && (
-        <XCircleIcon className="absolute right-05 bottom-0.5 size-2 text-red-600 stroke-3" />
+      {children}
+
+      {/* 6. The Floating Status Badge */}
+      <StatusBadge status={status} />
+    </div>
+  );
+}
+function StatusBadge({ status }: { status?: string }) {
+  if (!status || status === "initial") return null;
+
+  return (
+    <div
+      className={cn(
+        "absolute -top-2.5 -right-2.5 z-50 flex h-6 w-6 items-center justify-center rounded-full border-2 border-background shadow-sm transition-all duration-300",
+        status === "error" && "bg-red-500 text-white animate-in zoom-in slide-in-from-bottom-2",
+        status === "success" && "bg-emerald-500 text-white animate-in zoom-in slide-in-from-bottom-2",
+        status === "loading" && "bg-blue-500 text-white"
       )}
-      {status === "success" && (
-        <CheckCircle2Icon className="absolute right-05 bottom-0.5 size-2 text-green-600 stroke-3" />
-      )}
-      {status === "loading" && (
-        <Loader2Icon className="absolute -right-05 -bottom-0.5 size-2 text-gray-600 stroke-3" />
-      )}
+    >
+      {status === "error" && <X className="size-3.5 stroke-[4]" />}
+      {status === "success" && <Check className="size-3.5 stroke-[4]" />}
+      {status === "loading" && <Loader2 className="size-3.5 animate-spin stroke-[3]" />}
     </div>
   );
 }

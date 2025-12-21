@@ -47,7 +47,7 @@ type HttpRequestNodeType = Node<HttpRequestNodeData>;
 // });
 export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeType>) => {
   const [dialogOpen , setDialogOpen] = useState(false);
-  const nodeStauts = UseNodeStatus({
+  const nodeStatus = UseNodeStatus({
     nodeId:props.id,
     channel:"workflow-execution",
     topic:"nodestatus",
@@ -85,6 +85,7 @@ export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeType>) => {
       description={description}
       onDoubleClick={handleOpenSettings}
       onSettings={handleOpenSettings}
+      status={nodeStatus}
        />
   </>
 });
