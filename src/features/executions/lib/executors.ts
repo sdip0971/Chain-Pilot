@@ -2,6 +2,7 @@ import { NonRetriableError } from "inngest";
 import type { NodeExecutor } from "./execution-registry";
 import ky, { Options as KyOptions } from "ky";
 import Handlebars from "handlebars"
+import { httpRequestChannel } from "@/inngest/channels/http-request";
 export type MANUAL_TRIGGER_DATA = Record<string,unknown>
 export const manualtriggerexecutor : NodeExecutor<MANUAL_TRIGGER_DATA> = async({
     nodeId,
@@ -31,11 +32,13 @@ export const httprequestexecutor : NodeExecutor<HTTP_TRIGGER_DATA> = async({
     nodeId,
     context,
     step,
-    data
+    data,
+    publish
 
 })=>{
 
 // publish loading state for http request
+
 if(!data.endpoint){
     throw new NonRetriableError("Endpoint is missing")
 }
@@ -49,8 +52,7 @@ const result = await step.run("http-request",async()=>{
     const endpoint = Handlebars.compile(data.endpoint)(context);
     // Handle bar is going to read this data.ednpoint which looks like https://...//{{todo.httpResponse.data.userId}}
     // and populate {todo.httpResponse.data.userId} from the context in which we have all previous data and compile {{todo.httpResponse.data.userId} to whatever the user id is
-
-    if(!data.endpoint){
+    if(!data.endpoint){ 
         throw new NonRetriableError("No Enpoint Configured ")
     }
     if(!data.method ){

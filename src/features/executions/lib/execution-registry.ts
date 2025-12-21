@@ -1,6 +1,7 @@
 import { Node, NodeType } from "@/generated/prisma/client";
 import type { GetStepTools,Inngest } from "inngest";
 import { HTTP_TRIGGER_DATA, httprequestexecutor, MANUAL_TRIGGER_DATA, manualtriggerexecutor } from "./executors";
+import type { Realtime } from "@inngest/realtime";
 type WorkflowContext = Record<string,unknown>;
 export type StepTools = GetStepTools<Inngest.Any>;
 
@@ -8,7 +9,8 @@ interface NodeExecutorParams<TData= Record<string,unknown>>{
     data : TData,
     nodeId : string,
     context : WorkflowContext,
-    step : StepTools
+    step : StepTools,
+    publish: Realtime.PublishFn
 }
 export type NodeExecutor<TData = Record<string,unknown>> = (
     params : NodeExecutorParams<TData>,

@@ -3,6 +3,7 @@ import { inngest } from "./client";
 import prisma from "@/lib/db";
 import { topologicalSort } from "./topological-sort";
 import { getExecutor } from "@/features/executions/lib/execution-registry";
+import { httpRequestChannel, workflowChannel } from "./channels/http-request";
 
 export const executeWorkflow = inngest.createFunction(
   {
@@ -10,8 +11,11 @@ export const executeWorkflow = inngest.createFunction(
   },
   {
     event: "workflow/execute.workflow",
+    channels:[
+      httpRequestChannel(),
+    ]
   },
-  async ({ event, step }) => {
+  async ({ event, step, publish }) => {
     const workflowid = event.data.workflowId
     if(!workflowid){
       throw new NonRetriableError("Workflow Id is missing")
@@ -34,14 +38,39 @@ export const executeWorkflow = inngest.createFunction(
     let context = (event.data.intitalData || {})
     console.log(Sortednodes)
     for(const node of Sortednodes){
+      const nodeId=node.id
       const executor = getExecutor(node.type)
-      context  = await executor({
+       await publish(
+            workflowChannel().nodestatus({
+                nodeId,
+                status:"loading"
+            })
+        )
+      try {
+            context  = await executor({
         data:node.data as Record<string,unknown>,
-        nodeId : node.id,
+        nodeId ,
         context,
-        step
+        step,
+        publish
 
       })
+       await publish(
+            workflowChannel().nodestatus({
+                nodeId,
+                status:"success"
+            })
+        )
+      } catch (error){
+       await publish(
+            workflowChannel().nodestatus({
+                nodeId,
+                status:"success"
+            })
+        )
+    throw error;
+      }
+  
     }
   return {
     workflowid,
