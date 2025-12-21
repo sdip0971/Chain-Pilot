@@ -50,7 +50,7 @@ export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeType>) => {
   const nodeStauts = UseNodeStatus({
     nodeId:props.id,
     channel:"workflow-execution",
-    topic:"status",
+    topic:"nodestatus",
     refreshToken:fetchHttpRequestRealtimeToken
   })
   const handleOpenSettings = ()=>setDialogOpen(true)
@@ -83,8 +83,8 @@ export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeType>) => {
       icon={GlobeIcon} 
       name ="HTTP Request"
       description={description}
-      onDoubleClick={()=>{handleOpenSettings}}
-      onSettings={()=>{handleOpenSettings}}
+      onDoubleClick={handleOpenSettings}
+      onSettings={handleOpenSettings}
        />
   </>
 });

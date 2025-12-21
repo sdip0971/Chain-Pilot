@@ -21,12 +21,10 @@ function BaseExecutionNode({id,name,description,children,status="initial",icon:I
   const handleDelete = () => {
     setNodes((currentNodes) => {
       const updatedNodes = currentNodes.filter((node) => node.id !== id);
-
       return updatedNodes;
     });
     setEdges((currentEdges)=>{
-     const updatedEdges =currentEdges.filter((edge)=>edge.source != id || edge.target != id)
-     return updatedEdges
+     return currentEdges.filter((edge) => !(edge.source === id || edge.target === id));
     })
   };
   const nodeStatus = "initial"
@@ -36,6 +34,9 @@ function BaseExecutionNode({id,name,description,children,status="initial",icon:I
         name={name}
         description={description}
         onSettings={onSettings}
+        onDelete={handleDelete}
+        
+        
       >
         <NodeStatusIndicator variant='border' status={status}>
           <BaseNode onDoubleClick={onDoubleClick}>

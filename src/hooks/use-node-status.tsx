@@ -22,12 +22,11 @@ function UseNodeStatus({nodeId,channel,topic,refreshToken}:UseNodeStatusOptions)
      }
      // find latest message for this node 
      const latestMessage = data.filter((msg)=>{
+        return(
         msg.kind == "data"&&
         msg.channel==channel&&
         msg.topic == topic &&
-        msg.data.nodeId == nodeId
-
-     }).sort((a,b)=>{
+        msg.data.nodeId == nodeId)}).sort((a,b)=>{
         if(a.kind === "data" && b.kind === "data"){
             return (
                 new Date (b.createdAt).getTime() - new Date(a.createdAt).getTime()

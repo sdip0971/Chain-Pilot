@@ -3,7 +3,7 @@ import { inngest } from "./client";
 import prisma from "@/lib/db";
 import { topologicalSort } from "./topological-sort";
 import { getExecutor } from "@/features/executions/lib/execution-registry";
-import { httpRequestChannel, workflowChannel } from "./channels/http-request";
+import { httpRequestChannel, workflowChannel } from "./channels/workflowChannel";
 
 export const executeWorkflow = inngest.createFunction(
   {
@@ -65,7 +65,7 @@ export const executeWorkflow = inngest.createFunction(
        await publish(
             workflowChannel().nodestatus({
                 nodeId,
-                status:"success"
+                status:"error"
             })
         )
     throw error;
