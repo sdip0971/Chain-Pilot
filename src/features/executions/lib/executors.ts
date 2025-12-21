@@ -1,7 +1,8 @@
 import { NonRetriableError } from "inngest";
 import type { NodeExecutor } from "./execution-registry";
 import ky, { Options as KyOptions } from "ky";
-type MANUAL_TRIGGER_DATA = Record<string,unknown>
+import Handlebars from "handlebars"
+export type MANUAL_TRIGGER_DATA = Record<string,unknown>
 export const manualtriggerexecutor : NodeExecutor<MANUAL_TRIGGER_DATA> = async({
     nodeId,
     context,
@@ -14,11 +15,16 @@ const result = await step.run("manual-trigger",async()=>context)
 return result
 
 }
-type HTTP_TRIGGER_DATA = {
-    variableName?:string
-    endpoint?:string,
+Handlebars.registerHelper("json",(context)=>{
+    const jsonString = JSON.stringify(context,null,2)
+    const safestring = new Handlebars.SafeString(jsonString)
+    return safestring
+});
+export type HTTP_TRIGGER_DATA = {
+    variableName: string
+    endpoint:string,
     body?:string
-    method? : "GET" | "PUT" | "POST" | "DELETE"
+    method  : "GET" | "PUT" | "POST" | "DELETE"
 }
 
 export const httprequestexecutor : NodeExecutor<HTTP_TRIGGER_DATA> = async({
@@ -40,10 +46,24 @@ if(!data.variableName){
 
 const result = await step.run("http-request",async()=>{
     const method = data.method || "GET"
-    const endpoint = data.endpoint!;
+    const endpoint = Handlebars.compile(data.endpoint)(context);
+    // Handle bar is going to read this data.ednpoint which looks like https://...//{{todo.httpResponse.data.userId}}
+    // and populate {todo.httpResponse.data.userId} from the context in which we have all previous data and compile {{todo.httpResponse.data.userId} to whatever the user id is
+
+    if(!data.endpoint){
+        throw new NonRetriableError("No Enpoint Configured ")
+    }
+    if(!data.method ){
+          throw new NonRetriableError("No method Configured ")
+    }
+    if(!data.variableName){
+        throw new NonRetriableError("Variable Name is missing")
+    }
     const options :KyOptions = {method};
     if(["POST","PUT","PATCH"].includes(method)){
-        options.body =data?.body
+        const resolved = Handlebars.compile(data.body || "{}"  )(context) //json parse will fail if we dont pass anything so an empty object
+        JSON.parse(resolved)
+        options.body =resolved
         options.headers = {
             "Content-Type" : "application/json",
         }
@@ -56,19 +76,13 @@ const result = await step.run("http-request",async()=>{
         status:response.status,
         statusText:response.statusText,
         data:responseData,
+    } 
     }
-    }
-    if(data.variableName){
+    
     return {
         ...context,
       [data.variableName] :responsePayload
     }
-}
-return {
-    ...context,
-    ...responsePayload
-}
-
 })
 // publish success state for http request 
 return result
