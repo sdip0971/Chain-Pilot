@@ -14,7 +14,7 @@ interface BaseExecutionNodeProp extends NodeProps {
   onDoubleClick?: () => void;
   children?: ReactNode;
   icon : LucideIcon | string
-  status?:NodeStatus
+  status?:string
 }
 function BaseExecutionNode({id,name,description,children,status="initial",icon:Icon,onSettings,onDoubleClick}:BaseExecutionNodeProp) {
   const {setNodes,setEdges} = useReactFlow()
@@ -39,7 +39,7 @@ function BaseExecutionNode({id,name,description,children,status="initial",icon:I
         
       >
         <NodeStatusIndicator variant='border' status={status}>
-          <BaseNode onDoubleClick={onDoubleClick}>
+          <BaseNode onDoubleClick={onDoubleClick} status={status}>
             <BaseNodeContent>
               <div className="flex items-center justify-center w-8 h-8">
                 {typeof Icon === "string" ? (
