@@ -8,7 +8,7 @@ export type NodeStatus = "loading" | "success" | "error" | "initial";
 export type NodeStatusVariant = "overlay" | "border";
 
 export type NodeStatusIndicatorProps = {
-  status?: NodeStatus;
+  status?: string;
   variant?: NodeStatusVariant;
   children: ReactNode;
   className?:string

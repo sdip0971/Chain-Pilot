@@ -2,7 +2,7 @@ import { NonRetriableError } from "inngest";
 import type { NodeExecutor } from "./execution-registry";
 import ky, { Options as KyOptions } from "ky";
 import Handlebars from "handlebars"
-import { httpRequestChannel } from "@/inngest/channels/http-request";
+import { httpRequestChannel } from "@/inngest/channels/workflowChannel";
 export type MANUAL_TRIGGER_DATA = Record<string,unknown>
 export const manualtriggerexecutor : NodeExecutor<MANUAL_TRIGGER_DATA> = async({
     nodeId,
@@ -43,8 +43,8 @@ if(!data.endpoint){
     throw new NonRetriableError("Endpoint is missing")
 }
 
-if(!data.variableName){
-    throw new NonRetriableError("Variable name not configured")
+if(!data.method){
+    throw new NonRetriableError("Method not configured")
 }
 
 const result = await step.run("http-request",async()=>{
@@ -58,9 +58,7 @@ const result = await step.run("http-request",async()=>{
     if(!data.method ){
           throw new NonRetriableError("No method Configured ")
     }
-    if(!data.variableName){
-        throw new NonRetriableError("Variable Name is missing")
-    }
+   
     const options :KyOptions = {method};
     if(["POST","PUT","PATCH"].includes(method)){
         const resolved = Handlebars.compile(data.body || "{}"  )(context) //json parse will fail if we dont pass anything so an empty object
@@ -81,12 +79,15 @@ const result = await step.run("http-request",async()=>{
     } 
     }
     
-    return {
-        ...context,
-      [data.variableName] :responsePayload
-    }
+    return response
 })
+if (data.variableName && data.variableName.trim() !== "") {
+    return {
+      ...context,
+      [data.variableName]: result,
+    };
+  }
 // publish success state for http request 
-return result
+return context
 
 }

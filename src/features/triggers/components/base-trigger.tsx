@@ -14,7 +14,7 @@ interface BaseTriggerNodeProp extends NodeProps {
   onDoubleClick?: () => void;
   children?: ReactNode;
   icon : LucideIcon | string
-  status ? : NodeStatus
+  status ? : string
 }
 function BaseTriggerNode({id,name,description,status="initial",children,icon:Icon,onSettings,onDoubleClick}:BaseTriggerNodeProp) {
   const {setNodes,setEdges} = useReactFlow()

@@ -1,5 +1,6 @@
+"use server"
 import { getSubscriptionToken, type Realtime } from "@inngest/realtime";
-import { workflowChannel } from "@/inngest/channels/http-request";
+import { workflowChannel } from "@/inngest/channels/workflowChannel";
 import { inngest } from "@/inngest/client";
 
 export type HttpRequestToken = Realtime.Token<
