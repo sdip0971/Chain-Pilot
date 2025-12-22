@@ -86,7 +86,7 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
   }, [nodes, edges, workflowId]);
 
   return (
-    <div className="  size-full">
+     <div className="relative h-full w-full bg-gradient-to-r from-background via-background to-muted/20">
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -104,7 +104,9 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
         panOnScroll
         panOnDrag={false}
         selectionOnDrag
+        
       >
+
             
 {/* //     How it works at runtime: */}
 
@@ -115,7 +117,7 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
 // It grabs the value HttpRequestNode from /config/node-components.ts
 // It renders <HttpRequestNode />. */}
  
-        <Background />
+         <Background gap={22} size={1} color="rgba(120,120,120,0.18)" />
         <Controls />
         <MiniMap />
         <Panel>
