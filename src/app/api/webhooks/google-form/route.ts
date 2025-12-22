@@ -16,7 +16,7 @@ export async function POST(req:NextRequest){
             responseId : body.responseId,
             timestamp : body.timestamp,
             respondentEmail:body.respondentEmail,
-            response: body.response,
+            response: body.responses,
             raw:body,
 
         }
@@ -26,6 +26,7 @@ export async function POST(req:NextRequest){
                     googleForm:formData
                 }
             })
+            return NextResponse.json({ success: true });
 
     }catch(error){
      console.error("Google Form Webhook Error",error)

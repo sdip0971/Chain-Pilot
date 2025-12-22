@@ -15,7 +15,7 @@ const formSchema = z.object({
   variableName:z.string().min(1,{message:"Variable name is required"}).regex(/^[A-Za-z_$][A-Za-z0-9_$]*$/ , {
     message: "Varibale name must start with letter or underscore and contain only letters, numbers and underscores"
   }).optional().or(z.literal("")),
-  endpoint: z.url({message:"Please enter valid url" }).min(1, "Endpoint is required"),
+  endpoint: z.string({message:"Please enter valid url" }).min(1, "Endpoint is required"),
   method : z.enum(["GET", "POST", "PUT", "PATCH", "DELETE"]),
   body: z.string().optional()
   //.refine()
@@ -49,7 +49,7 @@ export type HttpRequestFormValues = z.infer<typeof formSchema>;
           endpoint : defaultEndpoint,
           method : defaultMethod,
           body : defaultBody,
-          variableName:defaultVariableName
+          variableName:defaultVariableName ?? ""
         })
       }
      },[open, defaultEndpoint,defaultMethod,defaultBody,form])

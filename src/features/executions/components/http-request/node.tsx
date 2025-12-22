@@ -69,6 +69,7 @@ export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeType>) => {
                endpoint: values.endpoint,
                method: values.method,
                body: values.body,
+               variabeName:values.variableName,
              },
            };
          }
@@ -78,7 +79,7 @@ export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeType>) => {
    };
 
   return <>
-  <HttpRequestDialog open={dialogOpen} onOpenChangeAction={setDialogOpen}  onSubmit={handleSubmit} defaultEndpoint={nodeData.endpoint} defaultMethod={nodeData.method || "GET"} defaultBody={nodeData.body} />
+  <HttpRequestDialog open={dialogOpen} onOpenChangeAction={setDialogOpen}  onSubmit={handleSubmit} defaultEndpoint={nodeData.endpoint} defaultMethod={nodeData.method || "GET"} defaultBody={nodeData.body} defaultVariableName={nodeData.variableName} />
   <BaseExecutionNode  {...props} 
       id={props.id}
       icon={GlobeIcon} 

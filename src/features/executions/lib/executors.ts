@@ -38,7 +38,7 @@ export const httprequestexecutor : NodeExecutor<HTTP_TRIGGER_DATA> = async({
 })=>{
 
 // publish loading state for http request
-
+console.log("data",data)
 if(!data.endpoint){
     throw new NonRetriableError("Endpoint is missing")
 }
@@ -79,26 +79,28 @@ const result = await step.run("http-request",async()=>{
     } 
     }
     
-    return response
+    return responsePayload
 })
-if (data.variableName && data.variableName.trim() !== "") {
-    return {
-      ...context,
-      [data.variableName]: result,
-    };
-  }
-// publish success state for http request 
-return context
+const variableName =
+    data.variableName && data.variableName.trim() !== ""
+      ? data.variableName
+      : "httpRequest";
 
-}
+  return {
+    ...context,
+    [variableName]: result, 
+  };
+};
+  
+
+
+
 export type GoogleForm_TRIGGER_DATA = Record<string,unknown>
 
 export const GoogleFormtriggerexecutor : NodeExecutor<MANUAL_TRIGGER_DATA> = async({
     nodeId,
     context,
     step,
-
-
 })=>{ 
 // publish loading state for manual trigger
  
