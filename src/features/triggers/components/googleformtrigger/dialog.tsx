@@ -15,11 +15,11 @@ import { toast } from "sonner";
 import { generateGoogleFormScript } from "./utils";
 interface Props {
   open: boolean;
-  onOpenChange: (open: boolean) => void;
+  onOpenChangeAction: (open: boolean) => void;
 }
-export const GoogleFormTriggerDialog = ({ open, onOpenChange }: Props) => {
+export const GoogleFormTriggerDialog = ({ open, onOpenChangeAction }: Props) => {
   const params = useParams();
-  const workflowId = params.workflowId as string;
+  const workflowId = params.workflowID as string;
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const webhookUrl = `${baseUrl}/api/webhooks/google-form?workflowId=${workflowId}`;
   const copyToClipboard = async () => {
@@ -31,7 +31,7 @@ export const GoogleFormTriggerDialog = ({ open, onOpenChange }: Props) => {
     }
   };
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChangeAction}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Google Form Trigger Configuration</DialogTitle>

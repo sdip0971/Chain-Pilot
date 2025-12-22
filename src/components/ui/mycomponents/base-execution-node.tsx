@@ -44,7 +44,7 @@ function BaseExecutionNode({
         onDelete={handleDelete}
       >
         <BaseNode selected={selected} onDoubleClick={onDoubleClick} status={status}>
-          <BaseNodeContent className='flex flex-col min-w-[240px] max-w-[320px]'>
+          <BaseNodeContent className='flex flex-col min-w-60 max-w-[320px]'>
             
             {/* 1. HEADER: Identity & Control 
                 A distinct top section.
@@ -83,8 +83,8 @@ function BaseExecutionNode({
             {/* 3. HANDLES: Functional Ports
                 Positioned relative to the whole card for balance
             */}
-            <BaseHandle id="target1" type="target" position={Position.Left} className="top-[28px]" />
-            <BaseHandle id="source1" type="source" position={Position.Right} className="top-[28px]" />
+            <BaseHandle id="target1" type="target" position={Position.Left} className="top-7" />
+            <BaseHandle id="source1" type="source" position={Position.Right} className="top-7" />
             
           </BaseNodeContent>
         </BaseNode>

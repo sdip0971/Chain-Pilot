@@ -8,12 +8,12 @@ export const BaseHandle = React.forwardRef<HTMLDivElement, HandleProps>(
       <Handle
         ref={ref}
         className={cn(
-          "!w-3 !h-3 rounded-full border-[2px]",
-          "!border-muted-foreground !bg-background",
+          "w-3! h-3! rounded-full border-2",
+          "border-muted-foreground! bg-background!",
 
      
           "transition-all duration-200 ease-out",
-          "hover:!border-primary hover:!bg-primary hover:scale-150",
+          "hover:border-primary! hover:bg-primary! hover:scale-150",
           "hover:shadow-[0_0_14px_rgba(59,130,246,0.9)]",
 
   

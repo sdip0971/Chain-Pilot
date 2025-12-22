@@ -56,8 +56,8 @@ export function BaseNode({ className, status, selected, children, ...props }: Ba
         
         
         <div className={cn(
-          "absolute top-0 left-0 right-0 h-[2px] opacity-0 transition-opacity duration-500",
-          "bg-gradient-to-r from-transparent via-current to-transparent",
+          "absolute top-0 left-0 right-0 h-0.5 opacity-0 transition-opacity duration-500",
+          "bg-linear-to-r from-transparent via-current to-transparent",
           isStatusActive && "opacity-100",
           status === "loading" && "text-blue-500",
           status === "success" && "text-emerald-500",
@@ -79,8 +79,8 @@ export function BaseNode({ className, status, selected, children, ...props }: Ba
         status === "error" && "bg-rose-500 text-white"
       )}>
         {status === "loading" && <Loader2 className="size-3 animate-spin" />}
-        {status === "success" && <Check className="size-3 stroke-[3]" />}
-        {status === "error" && <X className="size-3 stroke-[3]" />}
+        {status === "success" && <Check className="size-3 stroke-3" />}
+        {status === "error" && <X className="size-3 stroke-3" />}
       </div>
     </div>
   );

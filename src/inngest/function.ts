@@ -35,7 +35,7 @@ export const executeWorkflow = inngest.createFunction(
 
       return topologicalSort({nodes:workflow.Nodes,edges:workflow.Connections})
     })
-    let context = (event.data.intitalData || {})
+    let context = (event.data.initialData || {})
     console.log(Sortednodes)
     for(const node of Sortednodes){
       const nodeId=node.id

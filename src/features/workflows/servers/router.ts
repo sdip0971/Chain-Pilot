@@ -68,7 +68,14 @@ export const workflowsRouter = createTRPCRouter({
       });
 
       return await prisma.$transaction(async (tx) => {
-  await tx.node.deleteMany({
+
+        
+        await tx.workflow.update({
+    where: { id },
+    data: { updatedAt: new Date() },
+  });
+  
+        await tx.node.deleteMany({
     where: { workflowId: id },
   }); // delete all previous nodes and transactions
 
@@ -89,7 +96,14 @@ export const workflowsRouter = createTRPCRouter({
           })),
         }); // creating all the nodes present in react flow not a for loop and combination of create is slower than createMnay
         // so instead of doing for(node in nodes) tx.node.create() we use createMany
-       const uniqueEdges = edges.filter((edge: Edge, index: number, self: Edge[]) =>
+
+
+        const cleanEdges = edges.map((edge:Edge) => ({
+  ...edge,
+  sourceHandle: edge.sourceHandle || "main", 
+  targetHandle: edge.targetHandle || "main",
+}));
+       const uniqueEdges = cleanEdges.filter((edge: Edge, index: number, self: Edge[]) =>
     index === self.findIndex((t: Edge) => (
       t.source === edge.source &&
       t.target === edge.target &&
@@ -122,6 +136,8 @@ maxWait: 5000,
 timeout: 20000,
     });
   }),
+
+
   updateName: premiumProcedure
     .input(z.object({ id: z.string(), name: z.string() }))
     .mutation(async ({ ctx, input }: any) => {
