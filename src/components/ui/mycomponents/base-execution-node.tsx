@@ -16,7 +16,7 @@ interface BaseExecutionNodeProp extends NodeProps {
   icon : LucideIcon | string
   status?:string
 }
-function BaseExecutionNode({id,name,description,children,status="initial",icon:Icon,onSettings,onDoubleClick}:BaseExecutionNodeProp) {
+function BaseExecutionNode({id,selected,name,description,children,status="initial",icon:Icon,onSettings,onDoubleClick}:BaseExecutionNodeProp) {
   const {setNodes,setEdges} = useReactFlow()
   const handleDelete = () => {
     setNodes((currentNodes) => {
@@ -27,9 +27,8 @@ function BaseExecutionNode({id,name,description,children,status="initial",icon:I
      return currentEdges.filter((edge) => !(edge.source === id || edge.target === id));
     })
   };
-  const nodeStatus = "initial"
   return (
-    <div>
+    <div className='relative'>
       <WorkflowNode
         name={name}
         description={description}
@@ -38,10 +37,11 @@ function BaseExecutionNode({id,name,description,children,status="initial",icon:I
         
         
       >
-        <NodeStatusIndicator variant='border' status={status}>
-          <BaseNode onDoubleClick={onDoubleClick} status={status}>
-            <BaseNodeContent>
-              <div className="flex items-center justify-center w-8 h-8">
+        
+          <BaseNode selected={selected} onDoubleClick={onDoubleClick} status={status}>
+            <BaseNodeContent className='flex items-center justify-center size-10 rounded-xl bg-secondary/50 border border-white/5 shadow-inner'>
+              <div >
+                <div className='className="flex items-center justify-center w-8 h-8"'>
                 {typeof Icon === "string" ? (
                   <Image
                     src={Icon}
@@ -53,21 +53,26 @@ function BaseExecutionNode({id,name,description,children,status="initial",icon:I
                 ) : (
                   <Icon className="size-6 text-muted-foreground" />
                 )}
+                </div>
+
+                //description
+
+                <div className="flex flex-col gap-0.5">
+               <span className="font-semibold text-sm leading-none tracking-tight">{name}</span>
+               {description && (
+                 <span className="text-xs text-muted-foreground truncate max-w-[150px] font-mono opacity-80">
+                   {description}
+                 </span>
+               )}
+               </div>
+
                 {children}
-                <BaseHandle
-                  id="target1"
-                  type="target"
-                  position={Position.Left}
-                />
-                <BaseHandle
-                  id="source1"
-                  type="source"
-                  position={Position.Right}
-                />
+                
+               <BaseHandle id="target1" type="target" position={Position.Left} />
+            <BaseHandle id="source1" type="source" position={Position.Right} />
               </div>
             </BaseNodeContent>
           </BaseNode>
-        </NodeStatusIndicator> 
       </WorkflowNode>
     </div>
   );

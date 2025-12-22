@@ -11,7 +11,7 @@ interface UseNodeStatusOptions {
 import React from 'react'
 //This is the "Radio Receiver" in the browser. It connects to the WebSocket and filters the noise.
 function UseNodeStatus({nodeId,channel,topic,refreshToken}:UseNodeStatusOptions) {
-    const [status,setStatus] = useState("Initial")
+    const [status,setStatus] = useState("initial")
     const {data} = useInngestSubscription({
         refreshToken,
         enabled:true
