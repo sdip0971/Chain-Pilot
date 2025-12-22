@@ -7,6 +7,7 @@ import { GlobeIcon } from "lucide-react";
 import { HttpRequestDialog, HttpRequestFormValues } from "./dialog";
 import UseNodeStatus from "@/hooks/use-node-status";
 import { fetchHttpRequestRealtimeToken } from "./action";
+import { WORKFLOW_CHANNEL_ID } from "@/inngest/channels/workflowChannel";
 type HttpRequestNodeData = {
   variableName?:string,
   endpoint?: string;
@@ -49,7 +50,7 @@ export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeType>) => {
   const [dialogOpen , setDialogOpen] = useState(false);
   const nodeStatus = UseNodeStatus({
     nodeId:props.id,
-    channel:"workflow-execution",
+    channel:WORKFLOW_CHANNEL_ID,
     topic:"nodestatus",
     refreshToken:fetchHttpRequestRealtimeToken
   })

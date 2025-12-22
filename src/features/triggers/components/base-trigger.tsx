@@ -39,11 +39,11 @@ function BaseTriggerNode({id,name,description,status="initial",children,icon:Ico
         onSettings={onSettings}
         onDelete={handleDelete}
       >
-        <NodeStatusIndicator status={status}
-        variant='border'> 
+       
           <BaseNode
             className="rounded-l-2xl relative group"
             onDoubleClick={onDoubleClick}
+            status={status}
           >
             <BaseNodeContent>
               <div className="flex items-center justify-center w-8 h-8">
@@ -68,7 +68,6 @@ function BaseTriggerNode({id,name,description,status="initial",children,icon:Ico
               </div>
             </BaseNodeContent>
           </BaseNode>
-        </NodeStatusIndicator>
       </WorkflowNode>
     </div>
   );

@@ -6,6 +6,7 @@ topic("status").type<{
     status: "loading"|"success"|"error"
 }>(),
 )
+export const WORKFLOW_CHANNEL_ID = "workflow-execution";
 export const workflowChannel = channel("workflow-execution")
   .addTopic(
     topic("nodestatus").type<{
