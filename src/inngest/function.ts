@@ -1,7 +1,7 @@
 import { NonRetriableError } from "inngest";
 import { inngest } from "./client";
 import prisma from "@/lib/db";
-import { topologicalSort } from "./topological-sort";
+import { topologicalSort } from "./utils";
 import { getExecutor } from "@/features/executions/lib/execution-registry";
 import { httpRequestChannel, workflowChannel } from "./channels/workflowChannel";
 

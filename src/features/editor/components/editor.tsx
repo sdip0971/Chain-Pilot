@@ -86,7 +86,11 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
   }, [nodes, edges, workflowId]);
 
   return (
-     <div className="relative h-full w-full bg-gradient-to-r from-background via-background to-muted/20">
+     <div className="relative h-full w-full overflow-hidden">
+         <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(120,200,170,0.10),transparent_60%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_40%,rgba(0,0,0,0.06))]" />
+      </div>
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -104,8 +108,13 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
         panOnScroll
         panOnDrag={false}
         selectionOnDrag
-        
       >
+        <Background
+          variant={"dots" as any}
+          gap={26}
+          size={1}
+          color="rgba(0,0,0,0.05)"
+        />
 
             
 {/* //     How it works at runtime: */}

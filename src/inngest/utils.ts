@@ -1,5 +1,6 @@
 
 import {Node, Connection } from "@/generated/prisma/client";
+import { inngest } from "./client";
 //why topological sort 
 
 // In a workflow, some steps depend on others.
@@ -64,5 +65,14 @@ export const topologicalSort = ({nodes,edges}:{nodes:Node[],edges:Connection[]})
   }))
   // Mapping sorted id's to actual nodes
   return sorted.map((n)=>nodeMap.get(n))
+}
 
+export const sendWorkflowExecution = async(data: {
+  workflowId:string;
+  [key : string]:any
+})=>{
+      await inngest.send({
+            name:"workflow/execute.workflow",
+            data,
+        })
 }

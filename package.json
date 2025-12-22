@@ -9,7 +9,8 @@
     "lint": "biome check",
     "format": "biome format --write",
     "inngest:dev": "inngest-cli dev",
-    "dev:all": "mprocs -c src/mproc.yaml"
+    "dev:all": "mprocs -c src/mproc.yaml",
+    "ngrok-dev": "dotenv -- ngrok http --url=$NGROK_URL 3000"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^2.0.44",

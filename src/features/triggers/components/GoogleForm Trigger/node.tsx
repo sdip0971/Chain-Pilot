@@ -3,7 +3,7 @@ import { memo, useState } from "react";
 import BaseTriggerNode from "../base-trigger";
 
 import { MousePointerIcon } from "lucide-react";
-import { ManualTriggerDialog } from "./dialog";
+import { GoogleFormTriggerDialog } from "./dialog";
 import UseNodeStatus from "@/hooks/use-node-status";
 import { fetchHttpRequestRealtimeToken } from "@/features/executions/components/http-request/action";
 
@@ -18,7 +18,7 @@ export const GoogleFormTriggerNode = memo((props: NodeProps) => {
   const handleOpenSettings = () => setDialogOpen(true); 
   return (
     <>
-      <ManualTriggerDialog open={dialogOpen} onOpenChange={setDialogOpen} />
+      <GoogleFormTriggerDialog open={dialogOpen} onOpenChange={setDialogOpen} />
       <BaseTriggerNode
         {...props}
         icon="/icons/google-forms.svg"
