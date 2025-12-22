@@ -23,7 +23,7 @@ Handlebars.registerHelper("json",(context)=>{
 });
 export type HTTP_TRIGGER_DATA = {
     variableName: string
-    endpoint:string,
+    endpoint:string, 
     body?:string
     method  : "GET" | "PUT" | "POST" | "DELETE"
 }
@@ -89,5 +89,21 @@ if (data.variableName && data.variableName.trim() !== "") {
   }
 // publish success state for http request 
 return context
+
+}
+export type GoogleForm_TRIGGER_DATA = Record<string,unknown>
+
+export const GoogleFormtriggerexecutor : NodeExecutor<MANUAL_TRIGGER_DATA> = async({
+    nodeId,
+    context,
+    step,
+
+
+})=>{ 
+// publish loading state for manual trigger
+ 
+const result = await step.run("google-form-trigger",async()=>context)
+// publish success state for manualTrigger 
+return result
 
 }

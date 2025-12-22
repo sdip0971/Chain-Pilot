@@ -85,7 +85,6 @@ export function NodeSelector({ open, onOpenChange, children }: NodeSelectorProp)
                    const newNode = { 
                      id: createId(),
                      type:selection.type,
-                     name:selection.type,
                      position: flowPosition,
                      data: {},
                    };

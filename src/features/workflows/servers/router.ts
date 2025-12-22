@@ -68,12 +68,18 @@ export const workflowsRouter = createTRPCRouter({
       });
 
       return await prisma.$transaction(async (tx) => {
-        await tx.node.deleteMany({
-          where: { workflowId: id },
-        }); // delete all previous nodes and transactions
-        
-        await tx.node.createMany({
-          data: nodes.map((node: Node) => ({
+  await tx.node.deleteMany({
+    where: { workflowId: id },
+  }); // delete all previous nodes and transactions
+
+//   React Strict Mode: In development, React renders components twice. If your save function triggers during a render cycle, it might capture the state mid-update, resulting in duplicates.
+// Rapid State Updates: If you drag a node quickly, React Flow fires multiple onNodesChange events. Your auto-save hook might grab a version of the nodes array that has transient duplicates before React finishes reconciling the state.
+// Race Conditions: Two "save" requests might fire milliseconds apart, and due to network latency, they might get merged or processed in a way that creates a payload with redundant data.
+  const uniqueNodes = nodes.filter((node: Node, index: number, self: Node[]) =>
+    index === self.findIndex((t) => t.id === node.id)
+  );
+  await tx.node.createMany({
+          data: uniqueNodes.map((node: Node) => ({
             id: node.id,
             workflowId: id,
             name: node.type || "unknown",
@@ -83,27 +89,39 @@ export const workflowsRouter = createTRPCRouter({
           })),
         }); // creating all the nodes present in react flow not a for loop and combination of create is slower than createMnay
         // so instead of doing for(node in nodes) tx.node.create() we use createMany
-       
+       const uniqueEdges = edges.filter((edge: Edge, index: number, self: Edge[]) =>
+    index === self.findIndex((t: Edge) => (
+      t.source === edge.source &&
+      t.target === edge.target &&
+      t.sourceHandle === edge.sourceHandle &&
+      t.targetHandle === edge.targetHandle
+    ))
+  );  
+
+
         await tx.connection.createMany({
-          data: edges.map((edge: Edge) => ({
+          data: uniqueEdges.map((edge: Edge) => ({
             workflowId: id,
             SourceNodeId: edge.source,
             DestinationNodeId: edge.target,
             fromOutput: edge.sourceHandle,
             toInput: edge.targetHandle,
-            target:edge.target
+            target: edge.target
           })),
         });
 
-        await tx.workflow.update({
-          where: { id },
-          data: {
-            updatedAt: new Date(),
-          },
-        });
-        return workflow;
+      await tx.workflow.update({
+        where: { id },
+        data: {
+          updatedAt: new Date(),
+        },
       });
-    }),
+      return workflow;
+    }, {
+maxWait: 5000,
+timeout: 20000,
+    });
+  }),
   updateName: premiumProcedure
     .input(z.object({ id: z.string(), name: z.string() }))
     .mutation(async ({ ctx, input }: any) => {
