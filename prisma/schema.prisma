@@ -12,6 +12,7 @@ enum NodeType {
   INITIAl
   MANUAL_TRIGGER
   HTTP_REQUEST
+  GOOGLE_FORM_TRIGGER
   
 }
 

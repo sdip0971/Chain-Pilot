@@ -32,6 +32,12 @@ const triggerNodes: NodeTypeOption[] = [
       "Runs the flow on clicking a button. Good for getting started quickly",
     icon: MousePointerIcon,
   },
+   {
+    type: NodeType.GOOGLE_FORM_TRIGGER,
+    label: "Google Form submission",
+    description: "Runs when a Google Form receives a response",
+     icon: "/icons/google-forms.svg",
+  },
 ];
 
 const executionNodes: NodeTypeOption[] = [
@@ -42,6 +48,7 @@ const executionNodes: NodeTypeOption[] = [
     icon: GlobeIcon,
   },
 ];
+
 interface NodeSelectorProp{
     open:boolean,
     onOpenChange:(open:boolean)=>void,
@@ -78,6 +85,7 @@ export function NodeSelector({ open, onOpenChange, children }: NodeSelectorProp)
                    const newNode = { 
                      id: createId(),
                      type:selection.type,
+                     name:selection.type,
                      position: flowPosition,
                      data: {},
                    };
