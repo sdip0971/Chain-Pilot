@@ -22,8 +22,9 @@ export const StripeTriggerNode = memo((props: NodeProps) => {
       <StripeTriggerDialog open={dialogOpen} onOpenChangeAction={setDialogOpen} />
       <BaseTriggerNode
         {...props}
-        icon="/icons/google-forms.svg"
-        name="When Google Form is submitted"
+        icon="/icons/image.png"
+        name="Stripe"
+        // description="When stipe event is captured" //todo add description
          status={nodeStatus} 
          onSettings={handleOpenSettings} 
          onDoubleClick={handleOpenSettings} 

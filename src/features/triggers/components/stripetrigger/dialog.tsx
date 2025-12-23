@@ -21,7 +21,7 @@ export const StripeTriggerDialog = ({ open, onOpenChangeAction }: Props) => {
   const params = useParams();
   const workflowId = params.workflowID as string;
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  const webhookUrl = `${baseUrl}/api/webhooks/google-form?workflowId=${workflowId}`;
+  const webhookUrl = `${baseUrl}/api/webhooks/stripe?workflowId=${workflowId}`;
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(webhookUrl);
@@ -34,9 +34,9 @@ export const StripeTriggerDialog = ({ open, onOpenChangeAction }: Props) => {
     <Dialog open={open} onOpenChange={onOpenChangeAction}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Google Form Trigger Configuration</DialogTitle>
+          <DialogTitle>StripeTrigger Configuration</DialogTitle>
           <DialogDescription>
-            Use this webhook URL in your Google Form's App Script to trigger the
+            Use this webhook URL in your Stripe Dashboard to trigger the
             workflow when form is submitted
           </DialogDescription>
         </DialogHeader>
@@ -64,49 +64,30 @@ export const StripeTriggerDialog = ({ open, onOpenChangeAction }: Props) => {
           <div className="rounded-lg bg-muted p-4 space-y-1 ">
             <h4 className="font-medium text-sm">Setup instruction</h4>
             <ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
-              <li>Open your Google Form</li>
-              <li>Click the three dots menu -- Script editor </li>
-              <li>Copy and Paste Script below</li>
-              <li>Replace Webhook_URL with webhook URL above</li>
-              <li>Save and click "Triggers"-Add Trigger</li>
-              <li>Choose From form - On form Submit - Save</li>
+              <li>Open your Stripe Dashboard</li>
+              <li>Go to Developers- Webhook</li>
+              <li>Click to "Add endpoint" </li>
+              <li>Paste the webhook URL above</li>
+              <li>
+                Select events to listen for (e.g payment_intent.succeeded)
+              </li>
+              <li>Save and copy the signing secret</li>
             </ol>
-          </div>
-          <div className="rounded-lg bg-muted p-4 space-y-3">
-            <h4 className="font-medium text-sm">Google Apps Script:</h4>
-
-            <Button type="button" variant="outline" onClick={async() => {
-              const script = generateGoogleFormScript(webhookUrl) 
-              try{
-                await navigator.clipboard.writeText(script);
-                toast.success("Script copied to clipboard")
-              }catch{
-                toast.error("failed to copy script to clipboard")
-              }
-            }}>
-              <CopyIcon className="size-4 mr-2" />
-              Copy Google Apps Script
-            </Button>
-
-            <p className="text-xs text-muted-foreground">
-              This script includes your webhook URL and handles form submissions
-            </p> 
           </div>
           <div className="rounded-lg bg-muted p-4 space-y-2">
             <h4 className="font-medium text-sm">Available Variables</h4>
             <ul className="text-sm text-muted-foreground space-y-1">
               <li>
                 <code className="bg-background px-1 py-0.5 rounded">
-                  {"{{googleForm.respondentEmail}}"}
+                  {"{{stripe.amount}}"}
                 </code>
-                -Respondents email
-                 
+                -Payment amount{" "}
               </li>
               <li>
                 <code className="bg-background px-1 py-0.5 rounded">
-                  {"{{googleForm.response}}"}
+                  {"{{stripe.currency}}"}
                 </code>
-                -Specific answer
+                -Currency{" "}
               </li>
             </ul>
           </div>

@@ -9,7 +9,7 @@ import { NodeSelector } from "./node-selector";
 export const InitialNode = memo((props: NodeProps) => {
     const [selectorOpen , setSelectorOpen] = useState(false);
   return (
-    <NodeSelector open={selectorOpen} onOpenChange={setSelectorOpen}>
+    <NodeSelector open={selectorOpen} onOpenChangeAction={setSelectorOpen}>
       <WorkflowNode
         name="Initial Node"
         description="Click to add node"

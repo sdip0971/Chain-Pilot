@@ -176,8 +176,8 @@ timeout: 20000,
         id: connection.id,
         source: connection.SourceNodeId,
         target: connection.DestinationNodeId,
-        sourceHandle: connection.fromOutput,
-        targetHandle: connection.toInput,
+        sourceHandle: connection.fromOutput === "main" ? null : connection.fromOutput ,
+        targetHandle: connection.toInput === "main" ? null : connection.toInput ,
       })); 
 
       return {

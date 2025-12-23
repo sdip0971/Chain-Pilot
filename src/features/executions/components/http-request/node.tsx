@@ -69,7 +69,7 @@ export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeType>) => {
                endpoint: values.endpoint,
                method: values.method,
                body: values.body,
-               variabeName:values.variableName,
+               variableName:values.variableName,
              },
            };
          }
