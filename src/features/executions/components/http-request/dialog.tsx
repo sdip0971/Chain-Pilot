@@ -52,7 +52,7 @@ export type HttpRequestFormValues = z.infer<typeof formSchema>;
           variableName:defaultVariableName ?? ""
         })
       }
-     },[open, defaultEndpoint,defaultMethod,defaultBody,form])
+     },[open, defaultEndpoint,defaultMethod,defaultBody,form,defaultVariableName])
   const {setNodes} = useReactFlow()
   const watchMethod = form.watch("method")
   const watchVariable = form.watch("variableName")

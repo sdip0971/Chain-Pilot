@@ -32,11 +32,17 @@ const triggerNodes: NodeTypeOption[] = [
       "Runs the flow on clicking a button. Good for getting started quickly",
     icon: MousePointerIcon,
   },
-   {
+  {
     type: NodeType.GOOGLE_FORM_TRIGGER,
     label: "Google Form submission",
     description: "Runs when a Google Form receives a response",
-     icon: "/icons/google-forms.svg",
+    icon: "/icons/google-forms.svg",
+  },
+  {
+    type: NodeType.STRIPE_TRIGGER,
+    label: "Stripe Event",
+    description: "Runs when stripe event is captured",
+    icon: "/icons/image.png",
   },
 ];
 
@@ -51,10 +57,10 @@ const executionNodes: NodeTypeOption[] = [
 
 interface NodeSelectorProp{
     open:boolean,
-    onOpenChange:(open:boolean)=>void,
+    onOpenChangeAction:(open:boolean)=>void,
     children?:React.ReactNode,
 }    
-export function NodeSelector({ open, onOpenChange, children }: NodeSelectorProp) {
+export function NodeSelector({ open, onOpenChangeAction, children }: NodeSelectorProp) {
     const {setNodes,getNodes,screenToFlowPosition} = useReactFlow();
     const handleNodeSelect = useCallback((selection:NodeTypeOption)=>{
         // check if trying to add a manual trigger that already exists
@@ -93,10 +99,10 @@ export function NodeSelector({ open, onOpenChange, children }: NodeSelectorProp)
                 return [...nodes,newNode]
             });
             toast.success("Manual Trigger node added");
-            onOpenChange(false);
-    },[getNodes,screenToFlowPosition,setNodes,onOpenChange]);
+            onOpenChangeAction(false);
+    },[getNodes,screenToFlowPosition,setNodes,onOpenChangeAction]);
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
+    <Sheet open={open} onOpenChange={onOpenChangeAction}>
       <SheetTrigger asChild>{children}</SheetTrigger>
       <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
         <SheetHeader>

@@ -109,3 +109,17 @@ const result = await step.run("google-form-trigger",async()=>context)
 return result
 
 }
+export type Stripe_TRIGGER_DATA = Record<string,unknown>
+
+export const Stripetriggerexecutor : NodeExecutor<MANUAL_TRIGGER_DATA> = async({
+    nodeId,
+    context,
+    step,
+})=>{ 
+// publish loading state for manual trigger
+ 
+const result = await step.run("stripe-trigger",async()=>context)
+// publish success state for manualTrigger 
+return result
+
+}
