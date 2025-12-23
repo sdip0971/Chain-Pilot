@@ -6,8 +6,9 @@ import BaseExecutionNode from "@/components/ui/mycomponents/base-execution-node"
 import { GlobeIcon } from "lucide-react";
 import { HttpRequestDialog, HttpRequestFormValues } from "./dialog";
 import UseNodeStatus from "@/hooks/use-node-status";
-import { fetchHttpRequestRealtimeToken } from "./action";
+
 import { WORKFLOW_CHANNEL_ID } from "@/inngest/channels/workflowChannel";
+import { fetchWorkFlowRequestRealtimeToken } from "../../lib/action";
 type HttpRequestNodeData = {
   variableName?:string,
   endpoint?: string;
@@ -52,7 +53,7 @@ export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeType>) => {
     nodeId:props.id,
     channel:WORKFLOW_CHANNEL_ID,
     topic:"nodestatus",
-    refreshToken:fetchHttpRequestRealtimeToken
+    refreshToken:fetchWorkFlowRequestRealtimeToken
   })
   const handleOpenSettings = ()=>setDialogOpen(true)
   const {setNodes} = useReactFlow()

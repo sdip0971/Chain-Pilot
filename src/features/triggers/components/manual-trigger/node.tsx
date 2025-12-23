@@ -5,7 +5,7 @@ import BaseTriggerNode from "../base-trigger";
 import { MousePointerIcon } from "lucide-react";
 import { ManualTriggerDialog } from "./dialog";
 import UseNodeStatus from "@/hooks/use-node-status";
-import { fetchHttpRequestRealtimeToken } from "@/features/executions/components/http-request/action";
+import { fetchWorkFlowRequestRealtimeToken } from "@/features/executions/lib/action";
 
 export const ManualTriggerNode = memo((props: NodeProps) => {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -13,7 +13,7 @@ export const ManualTriggerNode = memo((props: NodeProps) => {
     nodeId:props.id,
     channel:"workflow-execution",
     topic:"nodestatus",
-    refreshToken:fetchHttpRequestRealtimeToken
+    refreshToken:fetchWorkFlowRequestRealtimeToken
   })
   const handleOpenSettings = () => setDialogOpen(true); 
   return (

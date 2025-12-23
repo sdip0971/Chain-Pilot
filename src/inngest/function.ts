@@ -52,7 +52,7 @@ export const executeWorkflow = inngest.createFunction(
         nodeId ,
         context,
         step,
-        publish
+     
 
       })
        await publish(

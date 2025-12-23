@@ -5,7 +5,7 @@ import BaseTriggerNode from "../base-trigger";
 import { MousePointerIcon } from "lucide-react";
 
 import UseNodeStatus from "@/hooks/use-node-status";
-import { fetchHttpRequestRealtimeToken } from "@/features/executions/components/http-request/action";
+import { fetchWorkFlowRequestRealtimeToken } from "@/features/executions/lib/action";
 import { StripeTriggerDialog } from "./dialog";
 
 export const StripeTriggerNode = memo((props: NodeProps) => {
@@ -14,7 +14,7 @@ export const StripeTriggerNode = memo((props: NodeProps) => {
     nodeId:props.id,
     channel:"workflow-execution",
     topic:"nodestatus",
-    refreshToken:fetchHttpRequestRealtimeToken
+    refreshToken:fetchWorkFlowRequestRealtimeToken
   })
   const handleOpenSettings = () => setDialogOpen(true); 
   return (
