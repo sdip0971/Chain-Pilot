@@ -5,7 +5,7 @@ import BaseTriggerNode from "../base-trigger";
 import { MousePointerIcon } from "lucide-react";
 import { GoogleFormTriggerDialog } from "./dialog";
 import UseNodeStatus from "@/hooks/use-node-status";
-import { fetchHttpRequestRealtimeToken } from "@/features/executions/components/http-request/action";
+import { fetchWorkFlowRequestRealtimeToken } from "@/features/executions/lib/action";
 
 export const GoogleFormTriggerNode = memo((props: NodeProps) => {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -13,12 +13,12 @@ export const GoogleFormTriggerNode = memo((props: NodeProps) => {
     nodeId:props.id,
     channel:"workflow-execution",
     topic:"nodestatus",
-    refreshToken:fetchHttpRequestRealtimeToken
+    refreshToken:fetchWorkFlowRequestRealtimeToken
   })
   const handleOpenSettings = () => setDialogOpen(true); 
   return (
     <>
-      <GoogleFormTriggerDialog open={dialogOpen} onOpenChange={setDialogOpen} />
+      <GoogleFormTriggerDialog open={dialogOpen} onOpenChangeAction={setDialogOpen} />
       <BaseTriggerNode
         {...props}
         icon="/icons/google-forms.svg"
