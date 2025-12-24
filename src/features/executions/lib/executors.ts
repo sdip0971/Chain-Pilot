@@ -1,7 +1,7 @@
 import { NonRetriableError } from "inngest";
 import { generateText } from "ai";
 
-// 1. Import Factory Functions
+
 import { createOpenAI } from "@ai-sdk/openai";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { createAnthropic } from "@ai-sdk/anthropic";
@@ -10,13 +10,13 @@ import type { NodeExecutor } from "./execution-registry";
 import ky, { Options as KyOptions } from "ky";
 import Handlebars from "handlebars";
 
-// --- Helpers ---
+
 Handlebars.registerHelper("json", (context) => {
   const jsonString = JSON.stringify(context, null, 2);
   return new Handlebars.SafeString(jsonString);
 });
 
-// --- Manual Trigger ---
+
 export type MANUAL_TRIGGER_DATA = Record<string, unknown>;
 export const manualtriggerexecutor: NodeExecutor<MANUAL_TRIGGER_DATA> = async ({
   context,
@@ -25,7 +25,7 @@ export const manualtriggerexecutor: NodeExecutor<MANUAL_TRIGGER_DATA> = async ({
   return await step.run("manual-trigger", async () => context);
 };
 
-// --- HTTP Request ---
+
 export type HTTP_TRIGGER_DATA = {
   variableName: string;
   endpoint: string;
@@ -74,7 +74,6 @@ export const httprequestexecutor: NodeExecutor<HTTP_TRIGGER_DATA> = async ({
   return { ...context, [variableName]: result };
 };
 
-// --- Triggers ---
 export const GoogleFormtriggerexecutor: NodeExecutor<
   MANUAL_TRIGGER_DATA
 > = async ({ context, step }) => {
@@ -88,16 +87,12 @@ export const Stripetriggerexecutor: NodeExecutor<MANUAL_TRIGGER_DATA> = async ({
   return await step.run("stripe-trigger", async () => context);
 };
 
-// ============================================================================
-//  ✅ FIXED AI EXECUTORS (Using create... functions)
-// ============================================================================
-
-// --- GEMINI Executor ---
 export type GEMINI_TRIGGER_DATA = {
   variableName: string;
   model: string;
   systemPrompt?: string;
   userPrompt: string;
+  imageUrl:string
 };
 
 export const GeminiExecutor: NodeExecutor<GEMINI_TRIGGER_DATA> = async ({
@@ -107,12 +102,12 @@ export const GeminiExecutor: NodeExecutor<GEMINI_TRIGGER_DATA> = async ({
 }) => {
   const { systemPrompt, userPrompt } = data;
 
-  // 1. Get Key
+
   const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
   if (!apiKey)
     throw new NonRetriableError("Missing GOOGLE_GENERATIVE_AI_API_KEY");
 
-  // 2. Initialize Custom Provider
+
   const google = createGoogleGenerativeAI({ apiKey });
 
   let modelName = data.model?.trim() || "gemini-1.5-flash";
@@ -125,11 +120,26 @@ export const GeminiExecutor: NodeExecutor<GEMINI_TRIGGER_DATA> = async ({
     const compiledSystemPrompt = systemPrompt
       ? Handlebars.compile(systemPrompt)(context)
       : undefined;
+    const compiledImageUrl = data.imageUrl
+        ? Handlebars.compile(data.imageUrl)(context).trim()
+        : undefined;
+
+        const messages = [
+          {
+            role: "user",
+            content: [
+              { type: "text", text: compiledUserPrompt },
+              ...(compiledImageUrl
+                ? [{ type: "image", image: compiledImageUrl }]
+                : []),
+            ],
+          },
+        ];
 
     const { text } = await generateText({
-      model: google(modelName) as any, // Use the custom instance here
+      model: google(modelName) as any, 
       system: compiledSystemPrompt,
-      prompt: compiledUserPrompt,
+      prompt: messages as any,
     });
 
     return text;
@@ -139,7 +149,7 @@ export const GeminiExecutor: NodeExecutor<GEMINI_TRIGGER_DATA> = async ({
   return { ...context, [variableName]: result };
 };
 
-// --- ANTHROPIC Executor ---
+
 export type Anthropic_TRIGGER_DATA = {
   variableName: string;
   model: string;
@@ -157,7 +167,7 @@ export const AnthropicExecutor: NodeExecutor<Anthropic_TRIGGER_DATA> = async ({
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) throw new NonRetriableError("Missing ANTHROPIC_API_KEY");
 
-  // Initialize Custom Provider
+  
   const anthropic = createAnthropic({ apiKey });
 
   if (!userPrompt) throw new NonRetriableError("No User Prompt Provided");
@@ -181,7 +191,7 @@ export const AnthropicExecutor: NodeExecutor<Anthropic_TRIGGER_DATA> = async ({
   return { ...context, [variableName]: result };
 };
 
-// --- OPENAI Executor ---
+
 export type OPENAI_TRIGGER_DATA = {
   variableName: string;
   model: string;
@@ -199,7 +209,7 @@ export const OPENAIExecutor: NodeExecutor<OPENAI_TRIGGER_DATA> = async ({
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) throw new NonRetriableError("Missing OPENAI_API_KEY");
 
-  // Initialize Custom Provider
+
   const openai = createOpenAI({ apiKey });
 
   if (!userPrompt) throw new NonRetriableError("No User Prompt Provided");
