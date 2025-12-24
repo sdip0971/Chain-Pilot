@@ -29,14 +29,19 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
 
-// Define models with 'as const' for Zod compatibility
 const availableModels = [
-  "gemini-1.5-flash",
-  "gemini-1.5-pro", 
-  "gemini-1.5-flash-8b", 
-  "gemini-2.0-flash-exp", 
+  "gemini-3-flash",
+  "gemini-3-pro",
+  "gemini-3-flash-thinking",
+  "gemini-3-flash-preview",
+  "models/gemini-2.5-flash",
+  "models/gemini-2.5-pro",
+  "models/gemini-2.5-flash-lite",
+  "models/gemini-flash-latest",
+  "models/gemini-pro-latest",
 ] as const;
 
 const formSchema = z.object({
@@ -49,6 +54,7 @@ const formSchema = z.object({
     })
     .optional()
     .or(z.literal("")),
+  imageUrl: z.string().optional(),
   systemPrompt: z.string().optional(),
   userPrompt: z.string().min(1, "User Prompt is required"),
   model: z.enum(availableModels),
@@ -61,6 +67,7 @@ interface Props {
   onOpenChangeAction: (open: boolean) => void;
   onSubmit?: (values: GeminiFormValues) => void;
   defaultValues?: Partial<GeminiFormValues>;
+
 }
 
 export const GeminiDialog = ({
@@ -69,13 +76,16 @@ export const GeminiDialog = ({
   onOpenChangeAction,
   defaultValues,
 }: Props) => {
+  const [isProcessingImage, setIsProcessingImage] = useState(false);
   const form = useForm<GeminiFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       variableName: defaultValues?.variableName ?? "",
-      model: defaultValues?.model || "gemini-1.5-flash",
+      model: defaultValues?.model,
       systemPrompt: defaultValues?.systemPrompt ?? "",
       userPrompt: defaultValues?.userPrompt ?? "",
+      imageUrl: defaultValues?.imageUrl ?? "",
+      
     },
   });
 
@@ -83,9 +93,10 @@ export const GeminiDialog = ({
      if (open) {
       form.reset({
         variableName: defaultValues?.variableName ?? "",
-        model: defaultValues?.model || "gemini-1.5-flash",
+        model: defaultValues?.model,
         systemPrompt: defaultValues?.systemPrompt ?? "",
         userPrompt: defaultValues?.userPrompt ?? "",
+        imageUrl: defaultValues?.imageUrl ?? "",
       });
     }
   }, [open, defaultValues, form]);
@@ -94,7 +105,28 @@ export const GeminiDialog = ({
     onSubmit?.(values);
     onOpenChangeAction(false);
   };
+ const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+   const file = e.target.files?.[0];
+   if (!file) return;
 
+
+   if (file.size > 2 * 1024 * 1024) {
+     alert("File is too large! Please choose an image under 2MB.");
+     return;
+   }
+
+   setIsProcessingImage(true);
+   const reader = new FileReader();
+
+   reader.onloadend = () => {
+     
+     const base64String = reader.result as string;
+     form.setValue("imageUrl", base64String); 
+     setIsProcessingImage(false);
+   };
+
+   reader.readAsDataURL(file);
+ };
   return (
     <Dialog open={open} onOpenChange={onOpenChangeAction}>
       <DialogContent className="max-w-xl">
@@ -109,7 +141,7 @@ export const GeminiDialog = ({
             onSubmit={form.handleSubmit(handleSubmit)}
             className="space-y-4 mt-4"
           >
-            {/* Variable Name */}
+            
             <FormField
               control={form.control}
               name="variableName"
@@ -152,7 +184,48 @@ export const GeminiDialog = ({
                 </FormItem>
               )}
             />
-
+    
+            <FormField
+              control={form.control}
+              name="imageUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Image Input (Optional)</FormLabel>
+                  <FormControl>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          className="cursor-pointer file:text-foreground"
+                          onChange={handleFileChange}
+                          disabled={isProcessingImage}
+                        />
+                        {isProcessingImage && (
+                          <Loader2 className="animate-spin h-4 w-4" />
+                        )}
+                      </div> 
+                      <div className="relative">
+                        <Input
+                          placeholder="Or enter URL / {{variable}} here..."
+                          {...field}
+                          className="pr-10 truncate font-mono text-xs"
+                        />
+                        {field.value && field.value.startsWith("data:") && (
+                          <span className="absolute right-3 top-2.5 text-xs text-muted-foreground">
+                            Base64
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </FormControl>
+                  <FormDescription>
+                    Upload an image or paste a URL.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             {/* System Prompt */}
             <FormField
               control={form.control}

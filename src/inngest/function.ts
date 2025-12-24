@@ -8,73 +8,119 @@ import { httpRequestChannel, workflowChannel } from "./channels/workflowChannel"
 export const executeWorkflow = inngest.createFunction(
   {
     id: "execute-workflow",
+    cancelOn: [
+      {
+        event: "workflow/cancel.workflow",
+        match: "data.workflowId",
+      },
+    ],
   },
+
   {
     event: "workflow/execute.workflow",
-    channels:[
-      httpRequestChannel(),
-    ]
+    channels: [httpRequestChannel(), workflowChannel()],
   },
   async ({ event, step, publish }) => {
-    const workflowid = event.data.workflowId
-    if(!workflowid){
-      throw new NonRetriableError("Workflow Id is missing")
+    const workflowid = event.data.workflowId;
+    if (!workflowid) {
+      throw new NonRetriableError("Workflow Id is missing");
     }
-  
 
-    const Sortednodes = await step.run("prepare-workflow",async()=>{
-      const workflow = await prisma.workflow.findUniqueOrThrow({
-        where : {
-          id:workflowid
-        },
-        include:{
-          Nodes:true,
-          Connections:true,
-        },
+    await publish(
+      workflowChannel().workflowstatus({
+        workflowId: workflowid,
+        status: "running",
       })
+    );
 
-      return topologicalSort({nodes:workflow.Nodes,edges:workflow.Connections})
-    })
-    let context = (event.data.initialData || {})
-    console.log(Sortednodes)
-    for(const node of Sortednodes){
-      const nodeId=node.id
-      const executor = getExecutor(node.type)
-       await publish(
-            workflowChannel().nodestatus({
-                nodeId,
-                status:"loading"
-            })
-        )
-      try {
-            context  = await executor({
-        data:node.data as Record<string,unknown>,
-        nodeId ,
-        context,
-        step,
-     
+    try {
+      const Sortednodes = await step.run("prepare-workflow", async () => {
+        const workflow = await prisma.workflow.findUniqueOrThrow({
+          where: {
+            id: workflowid,
+          },
+          include: {
+            Nodes: true,
+            Connections: true,
+          },
+        });
 
-      })
-       await publish(
+        return topologicalSort({
+          nodes: workflow.Nodes,
+          edges: workflow.Connections,
+        });
+      });
+      let context = event.data.initialData || {};
+      console.log(Sortednodes);
+      for (const node of Sortednodes) {
+        const nodeId = node.id;
+        const executor = getExecutor(node.type);
+        await publish(
+          workflowChannel().nodestatus({
+            nodeId,
+            status: "loading",
+          })
+        );
+        try {
+          context = await executor({
+            data: node.data as Record<string, unknown>,
+            nodeId,
+            context,
+            step,
+          });
+          await publish(
             workflowChannel().nodestatus({
-                nodeId,
-                status:"success"
+              nodeId,
+              status: "success",
             })
-        )
-      } catch (error){
-       await publish(
+          );
+        } catch (error) {
+          const errorMessage =
+            error instanceof Error ? error.message : "Unknown error";
+          await publish(
             workflowChannel().nodestatus({
-                nodeId,
-                status:"error"
+              nodeId,
+              status: "error",
+              errorMessage: errorMessage,
             })
-        )
-    throw error;
+          );
+          throw error;
+        }
       }
-  
+      await publish(
+        workflowChannel().workflowstatus({
+          workflowId: workflowid,
+          status: "completed",
+        })
+      );
+      return {
+        workflowid,
+        result: context,
+      };
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      await publish(
+        workflowChannel().workflowstatus({
+          workflowId: workflowid,
+          status: "failed",
+          errorMessage: errorMessage,
+        })
+      );
+      throw error;
     }
-  return {
-    workflowid,
-    result:context,
   }
+);
+export const workflowCancellationHandler = inngest.createFunction(
+  { id: "handle-workflow-cancellation" },
+  { event: "workflow/cancel.workflow" }, 
+  async ({ event, publish }) => {
+  
+    await publish(
+      workflowChannel().workflowstatus({
+        workflowId: event.data.workflowId,
+        status: "cancelled",
+      })
+    );
   }
 );

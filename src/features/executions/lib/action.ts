@@ -5,13 +5,14 @@ import { inngest } from "@/inngest/client";
 
 export type WorkflowToken = Realtime.Token<
   typeof workflowChannel,
-  ["nodestatus"]
+  ["nodestatus","workflowstatus"]
 >;
 
 export async function fetchWorkFlowRequestRealtimeToken(): Promise<WorkflowToken> {
-  const token = await getSubscriptionToken(inngest, {
-    channel: workflowChannel(),
-    topics: ["nodestatus"],
-  });
+const token = await getSubscriptionToken(inngest, {
+  channel: workflowChannel(),
+
+  topics: ["nodestatus", "workflowstatus"],
+});
   return token
 }
