@@ -1,6 +1,8 @@
-Authentication Layout
+# Authentication Layout
+
 This layout wraps the login and signup pages with a branded container. It centers content vertically and horizontally and displays the logo at the top.
 
+```tsx
 import Link from "next/link";
 import Image from "next/image";
 import React from "react";
@@ -18,12 +20,19 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
-Centers forms on screen
-Displays a link with logo to home
-Applies consistent padding and spacing
-Login Page (src/app/(auth)/login/page.tsx)
+```
+
+- Centers forms on screen
+- Displays a link with logo to home
+- Applies consistent padding and spacing
+
+---
+
+## Login Page (`src/app/(auth)/login/page.tsx`)
+
 This page protects against authenticated users and displays the login form.
 
+```tsx
 import { LoginForm } from "@/features/auth/components/login-form";
 import { requireUnAuth } from "@/lib/auth-utils";
 
@@ -33,11 +42,18 @@ const Page = async () => {
 };
 
 export default Page;
-Calls requireUnAuth to redirect logged-in users
-Renders the client-side LoginForm component
-Signup Page (src/app/(auth)/signup/page.tsx)
+```
+
+- Calls **requireUnAuth** to redirect logged-in users
+- Renders the client-side `LoginForm` component
+
+---
+
+## Signup Page (`src/app/(auth)/signup/page.tsx`)
+
 This page prevents authenticated users from accessing signup and renders the registration form.
 
+```tsx
 import { RegisterForm } from "@/features/auth/components/register";
 import { requireUnAuth } from "@/lib/auth-utils";
 import React from "react";
@@ -48,12 +64,20 @@ async function Register() {
 }
 
 export default Register;
-Invokes requireUnAuth for access control
-Wraps RegisterForm in a fragment
-Dashboard Layouts
-Main Dashboard Layout (src/app/(dashboard)/layout.tsx)
+```
+
+- Invokes **requireUnAuth** for access control
+- Wraps `RegisterForm` in a fragment
+
+---
+
+# Dashboard Layouts
+
+## Main Dashboard Layout (`src/app/(dashboard)/layout.tsx`)
+
 This client component sets up the sidebar and content inset.
 
+```tsx
 "use client";
 import AppSidebar from "@/components/ui/mycomponents/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
@@ -66,11 +90,18 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     </SidebarProvider>
   );
 }
-Provides sidebar context
-Renders AppSidebar and places page content
-Nested Dashboard Layout (src/app/(dashboard)/(others)/layout.tsx)
+```
+
+- Provides sidebar context
+- Renders `AppSidebar` and places page content
+
+---
+
+## Nested Dashboard Layout (`src/app/(dashboard)/(others)/layout.tsx`)
+
 This layout adds a fixed header above dashboard “others” pages.
 
+```tsx
 import { AppHeader } from "@/components/ui/mycomponents/app-header";
 
 const Layout = ({ children }: { children: React.ReactNode }) => (
@@ -81,13 +112,22 @@ const Layout = ({ children }: { children: React.ReactNode }) => (
 );
 
 export default Layout;
-Displays top header via AppHeader
-Wraps children in a flex container
-Dashboard Pages
-Editor Workflow Page
-Path: src/app/(dashboard)/(editor)/workflows/[workflowID]/page.tsx
+```
+
+- Displays top header via `AppHeader`
+- Wraps children in a flex container
+
+---
+
+# Dashboard Pages
+
+## Editor Workflow Page
+
+**Path:** `src/app/(dashboard)/(editor)/workflows/[workflowID]/page.tsx`
+
 This page fetches a single workflow and hydrates the client-side editor.
 
+```tsx
 import { Editor, EditorError, EditorHeader, EditorLoading } from "@/features/editor/components/editor";
 import { prefetchOneWorkflow } from "@/features/workflows/servers/prefetch";
 import { requireAuth } from "@/lib/auth-utils";
@@ -114,13 +154,21 @@ export default async function WorkFlowPage({ params }: { params: Promise<{ workf
     </HydrateClient>
   );
 }
-Enforces auth with requireAuth
-Prefetches workflow data server-side
-Wraps editor in React ErrorBoundary and Suspense
-Workflows List Page
-Path: src/app/(dashboard)/(others)/workflows/page.tsx
+```
+
+- Enforces auth with **requireAuth**
+- Prefetches workflow data server-side
+- Wraps editor in React ErrorBoundary and Suspense
+
+---
+
+## Workflows List Page
+
+**Path:** `src/app/(dashboard)/(others)/workflows/page.tsx`
+
 This page lists all workflows with pagination and search.
 
+```tsx
 import { requireAuth } from "@/lib/auth-utils";
 import { prefetchWorkflows } from "@/features/workflows/servers/prefetch";
 import WorkflowList, { WorkFLowContainer, WorkFLowError, WorkFLowLoading } from "@/features/workflows/components/workflows";
@@ -146,14 +194,23 @@ export default async function WorkflowsPage({ searchParams }: { searchParams: Pr
     </WorkFLowContainer>
   );
 }
-Loads list via TRPC
-Uses workflowParamsLoader to read query params
-Shows loading and error states
-Credentials Section
-Credentials List
-Path: src/app/(dashboard)/(others)/credentials/page.tsx
+```
+
+- Loads list via TRPC
+- Uses **workflowParamsLoader** to read query params
+- Shows loading and error states
+
+---
+
+# Credentials Section
+
+## Credentials List
+
+**Path:** `src/app/(dashboard)/(others)/credentials/page.tsx`
+
 Displays a paginated and searchable list of credentials.
 
+```tsx
 import CredentialsList, { CredentialContainer, CredentialError, CredentialsLoading } from "@/features/credentials/components/credentials";
 import { credentialParamLoader } from "@/features/credentials/server/params-loader";
 import { prefetchCredentials } from "@/features/credentials/server/prefetch";
@@ -179,12 +236,20 @@ export default async function Page({ searchParams }: { searchParams: Promise<any
     </CredentialContainer>
   );
 }
-Applies server-side data fetching
-Wraps list in error and loading handlers
-View Credential
-Path: src/app/(dashboard)/(others)/credentials/[credentialID]/page.tsx
+```
+
+- Applies server-side data fetching
+- Wraps list in error and loading handlers
+
+---
+
+## View Credential
+
+**Path:** `src/app/(dashboard)/(others)/credentials/[credentialID]/page.tsx`
+
 Shows details for a single credential.
 
+```tsx
 import { CredentialView } from "@/features/credentials/components/credential";
 import { prefetchOneCredential } from "@/features/credentials/server/prefetch";
 import { requireAuth } from "@/lib/auth-utils";
@@ -209,12 +274,20 @@ export default async function Page({ params }: { params: Promise<{ credentialId:
     </div>
   );
 }
-Redirects unauthenticated users
-Prefetches the targeted credential
-New Credential Form
-Path: src/app/(dashboard)/(others)/credentials/new/page.tsx
+```
+
+- Redirects unauthenticated users
+- Prefetches the targeted credential
+
+---
+
+## New Credential Form
+
+**Path:** `src/app/(dashboard)/(others)/credentials/new/page.tsx`
+
 Renders the form to create a new credential.
 
+```tsx
 import { CredentialForm } from "@/features/credentials/components/credential";
 import { requireAuth } from "@/lib/auth-utils";
 
@@ -228,13 +301,22 @@ const Page = async () => {
 };
 
 export default Page;
-Guards route with requireAuth
-Presents CredentialForm for input
-Executions Section
-Executions List
-Path: src/app/(dashboard)/(others)/executions/page.tsx
+```
+
+- Guards route with **requireAuth**
+- Presents `CredentialForm` for input
+
+---
+
+# Executions Section
+
+## Executions List
+
+**Path:** `src/app/(dashboard)/(others)/executions/page.tsx`
+
 Lists all workflow executions with real-time status.
 
+```tsx
 import ExecutionsList, { ExecutionContainer, ExecutionsError, ExecutionsLoading } from "@/features/executions/components/execution-history/executions";
 import { prefetchExecution } from "@/features/executions/server/prefetch";
 import { requireAuth } from "@/lib/auth-utils";
@@ -260,12 +342,20 @@ export default async function Page({ searchParams }: { searchParams: Promise<any
     </ExecutionContainer>
   );
 }
-Fetches paginated executions
-Shows live updates via real-time tokens
-Execution Detail
-Path: src/app/(dashboard)/(others)/executions/[executionID]/page.tsx
+```
+
+- Fetches paginated executions
+- Shows live updates via real-time tokens
+
+---
+
+## Execution Detail
+
+**Path:** `src/app/(dashboard)/(others)/executions/[executionID]/page.tsx`
+
 Displays the outcome and logs for a specific execution.
 
+```tsx
 import { ExecutionView } from "@/features/executions/components/execution-history/execution";
 import { prefetchOneExecution } from "@/features/executions/server/prefetch";
 import { requireAuth } from "@/lib/auth-utils";
@@ -290,20 +380,33 @@ export default async function Page({ params }: { params: Promise<{ executionId: 
     </div>
   );
 }
-Protects the route with requireAuth
-Prefetches single execution
-API Routes ⚡
-Auth API Handler
-Path: src/app/api/auth/[...all]/route.ts
+```
+
+- Protects the route with **requireAuth**
+- Prefetches single execution
+
+---
+
+# API Routes ⚡
+
+### Auth API Handler
+
+**Path:** `src/app/api/auth/[...all]/route.ts`
+
 Bridges the Better-Auth handler into Next.js API.
 
+```ts
 import { auth } from "@/lib/auth";
 import { toNextJsHandler } from "better-auth/next-js";
 
 export const { POST, GET } = toNextJsHandler(auth);
-Inngest Function Endpoint
-Path: src/app/api/inngest/route.ts
+```
 
+### Inngest Function Endpoint
+
+**Path:** `src/app/api/inngest/route.ts`
+
+```ts
 import { inngest } from "@/inngest/client";
 import { executeWorkflow, workflowCancellationHandler } from "@/inngest/function";
 import { serve } from "inngest/next";
@@ -312,10 +415,15 @@ export const { GET, POST, PUT } = serve({
   client: inngest,
   functions: [executeWorkflow, workflowCancellationHandler],
 });
-Sentry Example API
-Path: src/app/api/sentry-example-api/route.ts
+```
+
+### Sentry Example API
+
+**Path:** `src/app/api/sentry-example-api/route.ts`
+
 A failing endpoint to test server-side Sentry monitoring.
 
+```ts
 import { NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 
@@ -329,10 +437,15 @@ class SentryExampleAPIError extends Error {
 export function GET() {
   throw new SentryExampleAPIError("Backend error example");
 }
-tRPC Endpoint
-Path: src/app/api/trpc/[trpc]/route.ts
+```
+
+### tRPC Endpoint
+
+**Path:** `src/app/api/trpc/[trpc]/route.ts`
+
 Handles tRPC requests over Fetch API.
 
+```ts
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import { createTRPCContext } from "@/trpc/init";
 import { appRouter } from "@/trpc/routers/_app";
@@ -346,10 +459,15 @@ const handler = (req: Request) =>
   });
 
 export { handler as GET, handler as POST };
-Stripe Webhook
-Path: src/app/api/webhooks/Stripe/route.ts
+```
+
+### Stripe Webhook
+
+**Path:** `src/app/api/webhooks/Stripe/route.ts`
+
 Receives Stripe events and triggers workflow execution.
 
+```ts
 import { inngest } from "@/inngest/client";
 import { sendWorkflowExecution } from "@/inngest/utils";
 import { NextRequest, NextResponse } from "next/server";
@@ -369,10 +487,15 @@ export async function POST(req: NextRequest) {
   await sendWorkflowExecution({ workflowId, initialData: { stripe: formData } });
   return NextResponse.json({ success: true });
 }
-Google Form Webhook
-Path: src/app/api/webhooks/google-form/route.ts
+```
+
+### Google Form Webhook
+
+**Path:** `src/app/api/webhooks/google-form/route.ts`
+
 Transforms Google Form submissions into workflow triggers.
 
+```ts
 import { inngest } from "@/inngest/client";
 import { sendWorkflowExecution } from "@/inngest/utils";
 import { NextRequest, NextResponse } from "next/server";
@@ -393,10 +516,17 @@ export async function POST(req: NextRequest) {
   await sendWorkflowExecution({ workflowId, initialData: { googleForm: formData } });
   return NextResponse.json({ success: true });
 }
-Error & Root Layout
-Global Error Page (src/app/global-error.tsx)
+```
+
+---
+
+# Error & Root Layout
+
+## Global Error Page (`src/app/global-error.tsx`)
+
 Captures client-side errors and reports them to Sentry.
 
+```tsx
 "use client";
 import * as Sentry from "@sentry/nextjs";
 import NextError from "next/error";
@@ -409,11 +539,18 @@ export default function GlobalError({ error }: { error: Error }) {
 
   return <NextError statusCode={0} />;
 }
-Uses React useEffect to report errors
-Renders Next.js default error component
-Root Layout (src/app/layout.tsx)
+```
+
+- Uses React `useEffect` to report errors
+- Renders Next.js default error component
+
+---
+
+## Root Layout (`src/app/layout.tsx`)
+
 Defines fonts, global CSS, and providers for Jotai, TRPC, and Toaster.
 
+```tsx
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -443,13 +580,21 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   );
 }
-Imports global fonts and styles
-Wraps app in state and TRPC providers
-Renders toast notifications
-Sentry Example Frontend Page 🎯
-Path: src/app/sentry-example-page/page.tsx
+```
+
+- Imports global fonts and styles
+- Wraps app in state and TRPC providers
+- Renders toast notifications
+
+---
+
+# Sentry Example Frontend Page 🎯
+
+**Path:** `src/app/sentry-example-page/page.tsx`
+
 Demonstrates Sentry error capturing on the client.
 
+```tsx
 "use client";
 import Head from "next/head";
 import * as Sentry from "@sentry/nextjs";
@@ -497,7 +642,12 @@ export default function Page() {
     </div>
   );
 }
-Checks Sentry SDK connectivity
-Triggers both backend and frontend errors
-Demonstrates span instrumentation
+```
+
+- Checks Sentry SDK connectivity
+- Triggers both backend and frontend errors
+- Demonstrates span instrumentation
+
+---
+
 This documentation covers each selected file’s purpose, structure, and key functionality. It clarifies relationships between pages, layouts, and API routes, ensuring you understand how the app initializes, protects routes, and integrates external services.
