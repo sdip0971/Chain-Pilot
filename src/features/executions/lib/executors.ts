@@ -74,14 +74,14 @@ export const httprequestexecutor: NodeExecutor<HTTP_TRIGGER_DATA> = async ({
   const variableName = data.variableName?.trim() || "httpRequest";
   return { ...context, [variableName]: result };
 };
-
+export type GoogleForm_TRIGGER_DATA = Record<string, unknown>;
 export const GoogleFormtriggerexecutor: NodeExecutor<
-  MANUAL_TRIGGER_DATA
+  GoogleForm_TRIGGER_DATA
 > = async ({ context, step }) => {
   return await step.run("google-form-trigger", async () => context);
 };
-
-export const Stripetriggerexecutor: NodeExecutor<MANUAL_TRIGGER_DATA> = async ({
+export type Stripe_TRIGGER_DATA = Record<string, unknown>;
+export const Stripetriggerexecutor: NodeExecutor<Stripe_TRIGGER_DATA> = async ({
   context,
   step,
 }) => {
@@ -101,6 +101,7 @@ export const GeminiExecutor: NodeExecutor<GEMINI_TRIGGER_DATA> = async ({
   context,
   step,
   data,
+  userId
 }) => {
   const { systemPrompt, userPrompt } = data;
     let apiKey;
@@ -112,7 +113,9 @@ export const GeminiExecutor: NodeExecutor<GEMINI_TRIGGER_DATA> = async ({
 
      const credential = await step.run("fetch-gemini-credential", async () => {
        return await prisma.credentials.findUnique({
-         where: { id: data.credentialId },
+         where: { id: data.credentialId ,
+          userId:userId
+         },
        });
      });
 
@@ -181,6 +184,7 @@ export const AnthropicExecutor: NodeExecutor<Anthropic_TRIGGER_DATA> = async ({
   context,
   step,
   data,
+  userId
 }) => {
   const { systemPrompt, userPrompt, model } = data;
 
@@ -195,7 +199,9 @@ export const AnthropicExecutor: NodeExecutor<Anthropic_TRIGGER_DATA> = async ({
          "fetch-gemini-credential",
          async () => {
            return await prisma.credentials.findUnique({
-             where: { id: data.credentialId },
+             where: { id: data.credentialId,
+              userId
+              },
            });
          }
        );
@@ -245,6 +251,7 @@ export const OPENAIExecutor: NodeExecutor<OPENAI_TRIGGER_DATA> = async ({
   context,
   step,
   data,
+  userId
 }) => {
   const { systemPrompt, userPrompt, model } = data;
    let apiKey;
@@ -255,7 +262,9 @@ export const OPENAIExecutor: NodeExecutor<OPENAI_TRIGGER_DATA> = async ({
    if (data.credentialId) {
      const credential = await step.run("fetch-gemini-credential", async () => {
        return await prisma.credentials.findUnique({
-         where: { id: data.credentialId },
+         where: { id: data.credentialId,
+          userId
+          },
        });
      });
 

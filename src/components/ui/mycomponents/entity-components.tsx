@@ -313,7 +313,7 @@ export const EntityItem = ({
   return (
     <Link href={href} prefetch className={cn("group block", className)}>
       <Card className="transition-all duration-200 border-border/60 hover:shadow-sm hover:border-border/80 rounded-xl bg-card">
-        <CardContent className="flex flex-row items-center justify-between p-4 gap-4">
+        <CardContent className="flex flex-row items-center justify-between p-1 pl-3 gap-2">
           <div className="flex items-center gap-4 min-w-0">
             {image && (
               <div className="shrink-0 size-10 flex items-center justify-center rounded-lg bg-secondary/50 border border-border/50 text-muted-foreground">

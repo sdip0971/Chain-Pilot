@@ -1,5 +1,5 @@
 
-import CredentialsList, { CredentialContainer } from "@/features/credentials/components/credentials";
+import CredentialsList, { CredentialContainer, CredentialError, CredentialsLoading } from "@/features/credentials/components/credentials";
  import { credentialParamLoader } from "@/features/credentials/server/params-loader";
  import { prefetchCredentials } from "@/features/credentials/server/prefetch";
  import { requireAuth } from "@/lib/auth-utils";
@@ -21,8 +21,8 @@ import CredentialsList, { CredentialContainer } from "@/features/credentials/com
    return (
      <CredentialContainer>
        <HydrateClient>
-         <ErrorBoundary fallback={<p>Error</p>}>
-           <Suspense fallback={<p>Loading...</p>}>
+         <ErrorBoundary fallback={<CredentialError/>}>
+           <Suspense fallback={<CredentialsLoading/>}>
              <CredentialsList />
            </Suspense>
          </ErrorBoundary>

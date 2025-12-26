@@ -52,7 +52,7 @@ const initialNodes = [
 const initialEdges = [{ id: "n1-n2", source: "n1", target: "n2" }];
 export const Editor = ({ workflowId }: { workflowId: string }) => {
   const setEditor = useSetAtom(editorAtom)
-
+const proOptions = useMemo(() => ({ hideAttribution: true }), []);
   const { data: workflow } = useSuspenseIndividualWorkFlow(workflowId);
     const [nodes, setNodes] = useState<Node[]>(workflow.nodes);
     const [edges, setEdges] = useState<Edge[]>(workflow.edges);
@@ -80,14 +80,14 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
         nodes,
         edges,
       });
-    }, 1000); // 1 second delay
+    }, 3000); // 1 second delay
 
     return () => clearTimeout(timeoutId);
   }, [nodes, edges, workflowId]);
 
   return (
-     <div className="relative h-full w-full overflow-hidden">
-         <div className="absolute inset-0 pointer-events-none">
+    <div className="relative h-full w-full overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(120,200,170,0.10),transparent_60%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_40%,rgba(0,0,0,0.06))]" />
       </div>
@@ -98,12 +98,10 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         onInit={setEditor}
-        proOptions={{
-          hideAttribution: true,
-        }}
-        nodeTypes = {nodeComponents}
+        proOptions={proOptions}
+        nodeTypes={nodeComponents}
         fitView
-        snapGrid={[10,10]}
+        snapGrid={[10, 10]}
         snapToGrid
         panOnScroll
         panOnDrag={false}
@@ -116,30 +114,27 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
           color="rgba(0,0,0,0.05)"
         />
 
-            
-{/* //     How it works at runtime: */}
+        {/* //     How it works at runtime: */}
 
-{/* // React Flow sees a node object: { type: "HTTP_REQUEST", ... }. */}
-{/* 
+        {/* // React Flow sees a node object: { type: "HTTP_REQUEST", ... }. */}
+        {/* 
 // It looks at nodeTypes prop.
 // It finds the key "HTTP_REQUEST".
 // It grabs the value HttpRequestNode from /config/node-components.ts
 // It renders <HttpRequestNode />. */}
- 
-         <Background gap={22} size={1} color="rgba(120,120,120,0.18)" />
+
+        <Background gap={22} size={1} color="rgba(120,120,120,0.18)" />
         <Controls />
         <MiniMap />
         <Panel>
-          <AddNodeButton/>  
+          <AddNodeButton />
           {/* using panel we can add our custom components in reactflow canvas */}
         </Panel>
-         {
-            hasManualTrigger && (
-              <Panel position="bottom-center">
-                <ExecuteButton workflowId ={workflowId}/>
-                </Panel>
-            )
-          }
+        {hasManualTrigger && (
+          <Panel position="bottom-center">
+            <ExecuteButton workflowId={workflowId} />
+          </Panel>
+        )}
       </ReactFlow>
     </div>
   );
@@ -227,7 +222,7 @@ export const EditorNameInput = ({ workflowId }: { workflowId: string }) => {
           onChange={(e) => setName(e.target.value)}
           onBlur={handleSave}
           onKeyDown={handleKeydown}
-          className="h-6 py-0 px-2 w-[200px]" // Style to match breadcrumb height
+          className="h-6 py-0 px-2 w-50" 
         />
       </BreadcrumbItem>
     );
