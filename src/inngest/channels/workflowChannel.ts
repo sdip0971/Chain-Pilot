@@ -10,7 +10,7 @@ export const WORKFLOW_CHANNEL_ID = "workflow-execution";
 export const workflowChannel = channel("workflow-execution").addTopic(
   topic("nodestatus").type<{
     nodeId: string;
-    status: "loading" | "success" | "error";
+    status: "loading" | "success" | "error" | "cancelled";
     errorMessage?: string;
   }>(),
 ).addTopic(

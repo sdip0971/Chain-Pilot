@@ -14,6 +14,7 @@ export const InitialNode = memo((props: NodeProps) => {
         name="Initial Node"
         description="Click to add node"
         showToolbar={false}
+       
         
       >
         <PlaceholderNode {...props} onClick={() => {setSelectorOpen(true)}}>

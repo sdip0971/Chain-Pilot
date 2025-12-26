@@ -3,7 +3,12 @@ import { inngest } from "./client";
 import prisma from "@/lib/db";
 import { topologicalSort } from "./utils";
 import { getExecutor } from "@/features/executions/lib/execution-registry";
-import { httpRequestChannel, workflowChannel } from "./channels/workflowChannel";
+import {
+  httpRequestChannel,
+  WORKFLOW_CHANNEL_ID,
+  workflowChannel,
+} from "./channels/workflowChannel";
+import { Node } from "@/generated/prisma/client";
 
 export const executeWorkflow = inngest.createFunction(
   {
@@ -113,14 +118,43 @@ export const executeWorkflow = inngest.createFunction(
 );
 export const workflowCancellationHandler = inngest.createFunction(
   { id: "handle-workflow-cancellation" },
-  { event: "workflow/cancel.workflow" }, 
+  { event: "workflow/cancel.workflow" },
   async ({ event, publish }) => {
-  
+    const { workflowId } = event.data;
+
+    // 1. Update Workflow Status
     await publish(
       workflowChannel().workflowstatus({
-        workflowId: event.data.workflowId,
+        workflowId: workflowId,
         status: "cancelled",
       })
     );
+
+    const workflow = await prisma.workflow.findUnique({
+      where: { id: workflowId },
+      include: { Nodes: true },
+    });
+
+    if (!workflow) return;
+     const events = [
+       {
+         channel: WORKFLOW_CHANNEL_ID,
+         topic: "workflowstatus",
+         data: {
+           workflowId: workflowId,
+           status: "cancelled",
+         },
+       },
+       ...workflow.Nodes.map((node) => ({
+         channel: WORKFLOW_CHANNEL_ID,
+         topic: "nodestatus",
+         data: {
+           nodeId: node.id,
+           status: "cancelled",
+         },
+       })),
+     ];
+  if (events.length > 0) {
+    await publish(events as any)
   }
-);
+})

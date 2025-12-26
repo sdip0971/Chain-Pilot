@@ -9,6 +9,7 @@ import { createAnthropic } from "@ai-sdk/anthropic";
 import type { NodeExecutor } from "./execution-registry";
 import ky, { Options as KyOptions } from "ky";
 import Handlebars from "handlebars";
+import prisma from "@/lib/db";
 
 
 Handlebars.registerHelper("json", (context) => {
@@ -92,7 +93,8 @@ export type GEMINI_TRIGGER_DATA = {
   model: string;
   systemPrompt?: string;
   userPrompt: string;
-  imageUrl:string
+  imageUrl:string;
+  credentialId?:string
 };
 
 export const GeminiExecutor: NodeExecutor<GEMINI_TRIGGER_DATA> = async ({
@@ -101,11 +103,28 @@ export const GeminiExecutor: NodeExecutor<GEMINI_TRIGGER_DATA> = async ({
   data,
 }) => {
   const { systemPrompt, userPrompt } = data;
+    let apiKey;
+  console.log(data.credentialId)
+   if(!data.credentialId){
+     throw new NonRetriableError("Missing GOOGLE_GENERATIVE_AI_API_KEY");
+   }
+   if (data.credentialId) {
 
+     const credential = await step.run("fetch-gemini-credential", async () => {
+       return await prisma.credentials.findUnique({
+         where: { id: data.credentialId },
+       });
+     });
 
-  const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
-  if (!apiKey)
-    throw new NonRetriableError("Missing GOOGLE_GENERATIVE_AI_API_KEY");
+     if (credential?.value) {
+       apiKey = credential.value;
+     }
+   }
+   if (!apiKey) {
+     throw new NonRetriableError(
+       "Missing Gemini API Key. Please select a credential in the node settings."
+     );
+   }
 
 
   const google = createGoogleGenerativeAI({ apiKey });
@@ -155,6 +174,7 @@ export type Anthropic_TRIGGER_DATA = {
   model: string;
   systemPrompt?: string;
   userPrompt: string;
+  credentialId?: string;
 };
 
 export const AnthropicExecutor: NodeExecutor<Anthropic_TRIGGER_DATA> = async ({
@@ -164,10 +184,31 @@ export const AnthropicExecutor: NodeExecutor<Anthropic_TRIGGER_DATA> = async ({
 }) => {
   const { systemPrompt, userPrompt, model } = data;
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) throw new NonRetriableError("Missing ANTHROPIC_API_KEY");
 
-  
+     let apiKey;
+     console.log(data.credentialId);
+     if (!data.credentialId) {
+       throw new NonRetriableError("Missing GOOGLE_GENERATIVE_AI_API_KEY");
+     }
+     if (data.credentialId) {
+       const credential = await step.run(
+         "fetch-gemini-credential",
+         async () => {
+           return await prisma.credentials.findUnique({
+             where: { id: data.credentialId },
+           });
+         }
+       );
+
+       if (credential?.value) {
+         apiKey = credential.value;
+       }
+     }
+     if (!apiKey) {
+       throw new NonRetriableError(
+         "Missing Gemini API Key. Please select a credential in the node settings."
+       );
+     }
   const anthropic = createAnthropic({ apiKey });
 
   if (!userPrompt) throw new NonRetriableError("No User Prompt Provided");
@@ -197,6 +238,7 @@ export type OPENAI_TRIGGER_DATA = {
   model: string;
   systemPrompt?: string;
   userPrompt: string;
+  credentialId:string
 };
 
 export const OPENAIExecutor: NodeExecutor<OPENAI_TRIGGER_DATA> = async ({
@@ -205,9 +247,27 @@ export const OPENAIExecutor: NodeExecutor<OPENAI_TRIGGER_DATA> = async ({
   data,
 }) => {
   const { systemPrompt, userPrompt, model } = data;
+   let apiKey;
+   console.log(data.credentialId);
+   if (!data.credentialId) {
+     throw new NonRetriableError("Missing GOOGLE_GENERATIVE_AI_API_KEY");
+   }
+   if (data.credentialId) {
+     const credential = await step.run("fetch-gemini-credential", async () => {
+       return await prisma.credentials.findUnique({
+         where: { id: data.credentialId },
+       });
+     });
 
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) throw new NonRetriableError("Missing OPENAI_API_KEY");
+     if (credential?.value) {
+       apiKey = credential.value;
+     }
+   }
+   if (!apiKey) {
+     throw new NonRetriableError(
+       "Missing Gemini API Key. Please select a credential in the node settings."
+     );
+   }
 
 
   const openai = createOpenAI({ apiKey });
