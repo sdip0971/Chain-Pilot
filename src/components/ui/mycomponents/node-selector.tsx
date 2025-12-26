@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/sheet";
 import { NodeType } from "@/generated/prisma/enums";
 
-/* ---------------- DATA ---------------- */
+
 
 type NodeTypeOption = {
   type: NodeType;
@@ -74,7 +74,7 @@ const executionNodes: NodeTypeOption[] = [
   },
 ];
 
-/* ---------------- COMPONENT ---------------- */
+
 
 export function NodeSelector({
   open,
@@ -97,24 +97,42 @@ export function NodeSelector({
         return;
       }
 
-      setNodes((nodes) => [
-        ...nodes,
-        {
+     setNodes((nodes) => {
+        // 2. Check for the Initial/Placeholder Node (The Fix)
+        const hasInitialTrigger = nodes.some(
+          (node) => node.type === NodeType.INITIAl 
+        );
+
+        const centerX = window.innerWidth / 2;
+        const centerY = window.innerHeight / 2;
+
+        const flowPosition = screenToFlowPosition({
+          x: centerX + (Math.random() - 0.5) * 200,
+          y: centerY + (Math.random() - 0.5) * 200,
+        });
+
+        const newNode = {
           id: createId(),
           type: selection.type,
-          position: screenToFlowPosition({
-            x: window.innerWidth / 2 + (Math.random() - 0.5) * 200,
-            y: window.innerHeight / 2 + (Math.random() - 0.5) * 200,
-          }),
+          position: flowPosition,
           data: {},
-        },
-      ]);
+        };
+
+     
+        if (hasInitialTrigger) {
+          return [newNode];
+        }
+
+        return [...nodes, newNode];
+      });
 
       toast.success(`${selection.label} added`);
       onOpenChangeAction(false);
     },
     [getNodes, screenToFlowPosition, setNodes, onOpenChangeAction]
   );
+
+  
 
   const renderCard = (node: NodeTypeOption) => {
     const Icon = node.icon as any;

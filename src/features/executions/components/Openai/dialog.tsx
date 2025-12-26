@@ -30,13 +30,17 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
+// ✅ Import Enum and Hook
+import { CredentialsType } from "@/generated/prisma/enums";
+import { useCredentialsByType } from "@/hooks/use-credentials";
 
 const availableModels = [
   "gpt-4o",
   "gpt-4o-mini",
-  "gpt-4.1",
-  "gpt-4.1-mini",
+  "gpt-4-turbo",
+  "gpt-3.5-turbo",
 ] as const;
 
 const formSchema = z.object({
@@ -49,9 +53,12 @@ const formSchema = z.object({
     })
     .optional()
     .or(z.literal("")),
+  imageUrl: z.string().optional(),
   systemPrompt: z.string().optional(),
   userPrompt: z.string().min(1, "User Prompt is required"),
   model: z.enum(availableModels),
+  // ✅ Add credentialId to schema
+  credentialId: z.string().min(1, "Credential is required"),
 });
 
 export type OpenAIFormValues = z.infer<typeof formSchema>;
@@ -69,23 +76,34 @@ export const OpenAIDialog = ({
   onOpenChangeAction,
   defaultValues,
 }: Props) => {
+  const [isProcessingImage, setIsProcessingImage] = useState(false);
+
+  
+  const { data: credentials, isLoadingCredentials } = useCredentialsByType(
+    CredentialsType.OPENAI
+  );
+
   const form = useForm<OpenAIFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      credentialId: defaultValues?.credentialId ?? "",
       variableName: defaultValues?.variableName ?? "",
       model: defaultValues?.model || "gpt-4o-mini",
       systemPrompt: defaultValues?.systemPrompt ?? "",
       userPrompt: defaultValues?.userPrompt ?? "",
+      imageUrl: defaultValues?.imageUrl ?? "",
     },
   });
 
   useEffect(() => {
     if (open) {
       form.reset({
+        credentialId: defaultValues?.credentialId ?? "",
         variableName: defaultValues?.variableName ?? "",
         model: defaultValues?.model || "gpt-4o-mini",
         systemPrompt: defaultValues?.systemPrompt ?? "",
         userPrompt: defaultValues?.userPrompt ?? "",
+        imageUrl: defaultValues?.imageUrl ?? "",
       });
     }
   }, [open, defaultValues, form]);
@@ -95,13 +113,34 @@ export const OpenAIDialog = ({
     onOpenChangeAction(false);
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      alert("File is too large! Please choose an image under 2MB.");
+      return;
+    }
+
+    setIsProcessingImage(true);
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      const base64String = reader.result as string;
+      form.setValue("imageUrl", base64String);
+      setIsProcessingImage(false);
+    };
+
+    reader.readAsDataURL(file);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChangeAction}>
       <DialogContent className="max-w-xl">
         <DialogHeader>
-          <DialogTitle>OpenAI</DialogTitle>
+          <DialogTitle>OpenAI Configuration</DialogTitle>
           <DialogDescription>
-            Configure the OpenAI model, prompts, and output variable.
+            Configure the OpenAI model, API key, and prompts.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -109,6 +148,61 @@ export const OpenAIDialog = ({
             onSubmit={form.handleSubmit(handleSubmit)}
             className="space-y-4 mt-4"
           >
+            {/* ✅ 2. Credential Selection */}
+            <FormField
+              control={form.control}
+              name="credentialId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Credential (API Key)</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    disabled={isLoadingCredentials}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue
+                          placeholder={
+                            isLoadingCredentials
+                              ? "Loading keys..."
+                              : "Select an OpenAI Key"
+                          }
+                        />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {credentials?.items.map((cred) => (
+                        <SelectItem key={cred.id} value={cred.id}>
+                          <div className="flex items-center gap-2">
+                            <img
+                              src="/icons/openai-svgrepo-com.svg"
+                              className="w-4 h-4"
+                              alt="OpenAI"
+                            />
+                            {cred.name}
+                          </div>
+                        </SelectItem>
+                      ))}
+
+                      {credentials?.items.length === 0 && (
+                        <div className="p-2 text-sm text-muted-foreground text-center">
+                          No OpenAI keys found. <br />
+                          <a
+                            href="/credentials"
+                            className="underline text-primary"
+                          >
+                            Create one first
+                          </a>
+                        </div>
+                      )}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={form.control}
               name="variableName"
@@ -146,6 +240,49 @@ export const OpenAIDialog = ({
                       ))}
                     </SelectContent>
                   </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+
+            <FormField
+              control={form.control}
+              name="imageUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Image Input (Optional)</FormLabel>
+                  <FormControl>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          className="cursor-pointer file:text-foreground"
+                          onChange={handleFileChange}
+                          disabled={isProcessingImage}
+                        />
+                        {isProcessingImage && (
+                          <Loader2 className="animate-spin h-4 w-4" />
+                        )}
+                      </div>
+                      <div className="relative">
+                        <Input
+                          placeholder="Or enter URL / {{variable}} here..."
+                          {...field}
+                          className="pr-10 truncate font-mono text-xs"
+                        />
+                        {field.value && field.value.startsWith("data:") && (
+                          <span className="absolute right-3 top-2.5 text-xs text-muted-foreground">
+                            Base64
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </FormControl>
+                  <FormDescription>
+                    Upload an image or paste a URL (supported by GPT-4o models).
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
