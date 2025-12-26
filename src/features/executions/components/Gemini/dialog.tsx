@@ -31,6 +31,8 @@ import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
+import { CredentialsType } from "@/generated/prisma/enums";
+import { useCredentialsByType } from "@/hooks/use-credentials";
 
 const availableModels = [
   "gemini-3-flash",
@@ -58,6 +60,7 @@ const formSchema = z.object({
   systemPrompt: z.string().optional(),
   userPrompt: z.string().min(1, "User Prompt is required"),
   model: z.enum(availableModels),
+  credentialId:z.string().min(1,"Credential is required"),
 });
 
 export type GeminiFormValues = z.infer<typeof formSchema>;
@@ -76,10 +79,29 @@ export const GeminiDialog = ({
   onOpenChangeAction,
   defaultValues,
 }: Props) => {
+  const credentialTypeOptions = [
+      {
+        value: CredentialsType.OPENAI,
+        label: "OpenAI",
+        logo: "/icons/openai-svgrepo-com.svg",
+      },
+      {
+        value: CredentialsType.ANTHROPIC,
+        label: "Anthropic",
+        logo: "/icons/claude.png",
+      },
+      {
+        value: CredentialsType.GEMINI,
+        label: "Gemini",
+        logo: "/Google_Gemini_logo_2025.svg",
+      },
+    ];
   const [isProcessingImage, setIsProcessingImage] = useState(false);
+  const {data:credentials,isLoadingCredentials}=useCredentialsByType(CredentialsType.GEMINI)
   const form = useForm<GeminiFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      credentialId:defaultValues?.credentialId,
       variableName: defaultValues?.variableName ?? "",
       model: defaultValues?.model,
       systemPrompt: defaultValues?.systemPrompt ?? "",
@@ -92,6 +114,7 @@ export const GeminiDialog = ({
   useEffect(() => {
      if (open) {
       form.reset({
+        credentialId: defaultValues?.credentialId,
         variableName: defaultValues?.variableName ?? "",
         model: defaultValues?.model,
         systemPrompt: defaultValues?.systemPrompt ?? "",
@@ -141,7 +164,6 @@ export const GeminiDialog = ({
             onSubmit={form.handleSubmit(handleSubmit)}
             className="space-y-4 mt-4"
           >
-            
             <FormField
               control={form.control}
               name="variableName"
@@ -184,7 +206,7 @@ export const GeminiDialog = ({
                 </FormItem>
               )}
             />
-    
+
             <FormField
               control={form.control}
               name="imageUrl"
@@ -204,7 +226,7 @@ export const GeminiDialog = ({
                         {isProcessingImage && (
                           <Loader2 className="animate-spin h-4 w-4" />
                         )}
-                      </div> 
+                      </div>
                       <div className="relative">
                         <Input
                           placeholder="Or enter URL / {{variable}} here..."
@@ -226,7 +248,7 @@ export const GeminiDialog = ({
                 </FormItem>
               )}
             />
-            {/* System Prompt */}
+
             <FormField
               control={form.control}
               name="systemPrompt"
@@ -245,7 +267,6 @@ export const GeminiDialog = ({
               )}
             />
 
-            {/* User Prompt */}
             <FormField
               control={form.control}
               name="userPrompt"
@@ -262,6 +283,60 @@ export const GeminiDialog = ({
                   <FormDescription>
                     Supports Handlebars syntax for variables.
                   </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="credentialId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Credential (API Key)</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    disabled={isLoadingCredentials}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue
+                          placeholder={
+                            isLoadingCredentials
+                              ? "Loading keys..."
+                              : "Select a Gemini Key"
+                          }
+                        />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {credentials?.items.map((cred) => (
+                        <SelectItem key={cred.id} value={cred.id}>
+                          <div className="flex items-center gap-2">
+                   
+                            <img
+                              src="/Google_Gemini_logo_2025.svg"
+                              className="w-4 h-4"
+                              alt="Gemini"
+                            />
+                            {cred.name}
+                          </div>
+                        </SelectItem>
+                      ))}
+
+                      {credentials?.items.length === 0 && (
+                        <div className="p-2 text-sm text-muted-foreground text-center">
+                          No Gemini keys found. <br />
+                          <a
+                            href="/credentials"
+                            className="underline text-primary"
+                          >
+                            Create one first
+                          </a>
+                        </div>
+                      )}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

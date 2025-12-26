@@ -1,7 +1,7 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Looking for oays to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
@@ -18,10 +18,15 @@ enum NodeType {
   GEMINI
   OPENAI
 }
+enum CredentialsType{
+OPENAI
+ANTHROPIC
+GEMINI
+}
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url = env("DATABASE_URL")
 }
 
 model User {
@@ -35,6 +40,7 @@ model User {
   sessions      Session[]
   accounts      Account[]
   workflows    Workflow[]
+  credentials Credentials[]
   @@unique([email])
   @@map("user")
 }
@@ -102,6 +108,9 @@ model Node {
   data Json @default("{}")
   outputConnections Connection[] @relation("SourceNode")
   inputConnections Connection[] @relation("DestinationNode")
+   
+   credentialId String?
+   credential Credentials? @relation(fields:[credentialId],references: [id],onDelete:SetNull)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -123,3 +132,15 @@ model Connection {
   updatedAt  DateTime @default(now()) @updatedAt
   @@unique([SourceNodeId, DestinationNodeId, fromOutput, toInput, workflowId])
 } 
+model Credentials {
+    id String @id @default(cuid())
+    name String
+    type CredentialsType
+    value String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    userId String
+    user User @relation(fields:[userId],references: [id],onDelete: Cascade)
+    node Node[]
+
+}

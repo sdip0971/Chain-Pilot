@@ -1,8 +1,10 @@
 import { z } from 'zod';
 import { createTRPCRouter, protectedProcedure } from '../init';
 import { workflowsRouter } from '@/features/workflows/servers/router';
+import { CredentialsRouter } from '@/features/credentials/server/router';
 export const appRouter = createTRPCRouter({
-  workflows: workflowsRouter
+  workflows: workflowsRouter,
+  credentials:CredentialsRouter,
 });
 // export type definition of API
 export type AppRouter = typeof appRouter;
