@@ -1,45 +1,55 @@
+import { useInngestSubscription } from "@inngest/realtime/hooks";
+import { useEffect, useState } from "react";
 import type { Realtime } from "@inngest/realtime";
-import {useInngestSubscription} from "@inngest/realtime/hooks";
-import { useEffect,useState } from "react";
-import type { NodeStatus } from "@/components/ui/react-flow/node-status-indicator";
-interface UseNodeStatusOptions {
-    nodeId:string,
-    channel:string,
-    topic:string,
-    refreshToken : ()=> Promise<Realtime.Subscribe.Token>
-}
-import React from 'react'
-//This is the "Radio Receiver" in the browser. It connects to the WebSocket and filters the noise.
-function UseNodeStatus({nodeId,channel,topic,refreshToken}:UseNodeStatusOptions) {
-    const [status,setStatus] = useState("initial")
-    const {data} = useInngestSubscription({
-        refreshToken,
-        enabled:true
-    })
-    useEffect(()=>{
-     if(!data.length){
-        return
-     }
-     // find latest message for this node 
-     const latestMessage = data.filter((msg)=>{
-        return(
-        msg.kind == "data"&&
-        msg.channel==channel&&
-        msg.topic == topic &&
-        msg.data.nodeId == nodeId)}).sort((a,b)=>{
-        if(a.kind === "data" && b.kind === "data"){
-            return (
-                new Date (b.createdAt).getTime() - new Date(a.createdAt).getTime()
-            )
-        }
-        return 0;
-     })[0]
-     if (latestMessage?.kind =="data"){
-        setStatus(latestMessage.data.status as NodeStatus)
-     }
 
-    },[data, nodeId,channel,topic])
+// Assuming NodeStatus is defined elsewhere or is just a string
+type NodeStatus = "initial" | "loading" | "success" | "error" | "cancelled";
+
+interface UseNodeStatusOptions {
+  nodeId: string;
+  channel: string;
+  topic: string;
+  refreshToken: () => Promise<Realtime.Subscribe.Token>;
+}
+
+function UseNodeStatus({
+  nodeId,
+  channel,
+  topic,
+  refreshToken,
+}: UseNodeStatusOptions) {
+  const [status, setStatus] = useState<NodeStatus>("initial");
+
+  const { data } = useInngestSubscription({
+    refreshToken,
+    enabled: true,
+  });
+
+  useEffect(() => {
+    if (!data || data.length === 0) {
+      return;
+    }
+
+    // 1. Filter messages for THIS specific node
+    const messages = data.filter((msg) => {
+      return (
+        msg.kind === "data" &&
+        msg.channel === channel &&
+        msg.topic === topic &&
+        msg.data.nodeId === nodeId
+      );
+    });
+
+    // 2. Get the LAST message (most recent)
+    // We rely on the array order instead of 'createdAt' to avoid date parsing issues
+    const latestMessage = messages[messages.length - 1];
+
+    if (latestMessage?.kind === "data") {
+      setStatus(latestMessage.data.status as NodeStatus);
+    }
+  }, [data, nodeId, channel, topic]);
+
   return status;
 }
 
-export default UseNodeStatus
+export default UseNodeStatus;

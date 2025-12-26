@@ -1,6 +1,7 @@
 
 import {Node, Connection } from "@/generated/prisma/client";
 import { inngest } from "./client";
+import { createId } from "@paralleldrive/cuid2";
 //why topological sort 
 
 // In a workflow, some steps depend on others.
@@ -74,5 +75,6 @@ export const sendWorkflowExecution = async(data: {
       await inngest.send({
             name:"workflow/execute.workflow",
             data,
+            id:createId()
         })
 }

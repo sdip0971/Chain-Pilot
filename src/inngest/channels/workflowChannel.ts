@@ -20,11 +20,12 @@ export const workflowChannel = channel("workflow-execution").addTopic(
       errorMessage?:string;
     }>()
   );
-export async function cancelWorkflowAction(workflowId: string) {
+export async function cancelWorkflowAction(workflowId: string,executionId:string) {
   await inngest.send({
     name: "workflow/cancel.workflow",
     data: {
       workflowId,
+      executionId,
     },
   });
 }

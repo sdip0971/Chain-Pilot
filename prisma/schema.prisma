@@ -43,6 +43,7 @@ model User {
   credentials Credentials[]
   @@unique([email])
   @@map("user")
+  
 }
 
 model Session {
@@ -95,10 +96,14 @@ model Workflow {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  Execution Execution[]
+
   userId String
   user User @relation(fields:[userId],references:[id],onDelete:Cascade)
   Nodes Node[]
   Connections Connection[]
+  @@index([userId])
+  @@index([id])
 }
 model Node {
   id String @id @default(cuid())
@@ -116,6 +121,8 @@ model Node {
   updatedAt DateTime @updatedAt
   workflowId String
   workflow Workflow @relation(fields:[workflowId],references:[id],onDelete:Cascade)
+  @@index([workflowId])
+  @@index([credentialId])
 }
 model Connection {
   id String @id @default(cuid())
@@ -131,6 +138,9 @@ model Connection {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @default(now()) @updatedAt
   @@unique([SourceNodeId, DestinationNodeId, fromOutput, toInput, workflowId])
+  @@index([workflowId])
+  @@index([SourceNodeId])
+  @@index([DestinationNodeId])
 } 
 model Credentials {
     id String @id @default(cuid())
@@ -142,5 +152,24 @@ model Credentials {
     userId String
     user User @relation(fields:[userId],references: [id],onDelete: Cascade)
     node Node[]
+    @@index([userId])
+}
+enum ExecutionStatus {
+  SUCCESS
+  FAILED
+  CANCELLED
+  RUNNING
+}
+model Execution {
+  id String @id @default(cuid())
+  startedAt DateTime @default(now())
+  error String? @db.Text
+  errorStack String? @db.Text
+  status ExecutionStatus @default(RUNNING)
+  completedAt DateTime?
+  workflowId String
+  workflow Workflow @relation(fields: [workflowId], references: [id],onDelete: Cascade)
+  inngestEventId String @unique
 
+  output Json?
 }

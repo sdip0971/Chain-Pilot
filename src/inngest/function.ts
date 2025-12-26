@@ -1,4 +1,4 @@
-import { NonRetriableError } from "inngest";
+import { NonRetriableError, step } from "inngest";
 import { inngest } from "./client";
 import prisma from "@/lib/db";
 import { topologicalSort } from "./utils";
@@ -13,6 +13,26 @@ import { Node } from "@/generated/prisma/client";
 export const executeWorkflow = inngest.createFunction(
   {
     id: "execute-workflow",
+    onFailure: async({event,step})=>{
+      const errorData = event.data.error;
+
+      await step.run("mark-execution-failed-on-crash", async () => {
+       
+        const workflowId = event.data.event.data.workflowId;
+
+        await prisma.execution.updateMany({
+          where: {
+            inngestEventId: event.data.event.id
+          },
+          data: {
+            status: "FAILED",
+            error: errorData.message,
+            errorStack: errorData.stack,
+          },
+        });
+      });
+
+    },
     cancelOn: [
       {
         event: "workflow/cancel.workflow",
@@ -26,8 +46,10 @@ export const executeWorkflow = inngest.createFunction(
     channels: [httpRequestChannel(), workflowChannel()],
   },
   async ({ event, step, publish }) => {
+    const inngestEventId =event.id!
+
     const workflowid = event.data.workflowId;
-    if (!workflowid) {
+    if (!workflowid || !inngestEventId) {
       throw new NonRetriableError("Workflow Id is missing");
     }
 
@@ -37,9 +59,17 @@ export const executeWorkflow = inngest.createFunction(
         status: "running",
       })
     );
+    await step.run("create-execution",async()=>{
+      return prisma.execution.create({
+        data:{
+          workflowId:workflowid,
+          inngestEventId,
+        }
+      })
+    })
 
     try {
-      const Sortednodes = await step.run("prepare-workflow", async () => {
+    
         const workflow = await prisma.workflow.findUniqueOrThrow({
           where: {
             id: workflowid,
@@ -49,17 +79,28 @@ export const executeWorkflow = inngest.createFunction(
             Connections: true,
           },
         });
-
-        return topologicalSort({
+        const Sortednodes = topologicalSort({
           nodes: workflow.Nodes,
           edges: workflow.Connections,
         });
-      });
+       const userId = await step.run("find-user-id",async()=>{
+        const workflow = await prisma.workflow.findUniqueOrThrow({
+          where:{id:workflowid},
+          select:{
+            userId:true
+          }
+        })
+        return workflow.userId
+       })
+       if(!userId){
+        throw  new NonRetriableError("User not found")
+       }
+
       let context = event.data.initialData || {};
-      console.log(Sortednodes);
+   
       for (const node of Sortednodes) {
-        const nodeId = node.id;
-        const executor = getExecutor(node.type);
+        const nodeId = node!.id;
+        const executor = getExecutor(node!.type);
         await publish(
           workflowChannel().nodestatus({
             nodeId,
@@ -68,10 +109,11 @@ export const executeWorkflow = inngest.createFunction(
         );
         try {
           context = await executor({
-            data: node.data as Record<string, unknown>,
+            data: node?.data as Record<string, unknown>,
             nodeId,
             context,
             step,
+            userId
           });
           await publish(
             workflowChannel().nodestatus({
@@ -98,11 +140,26 @@ export const executeWorkflow = inngest.createFunction(
           status: "completed",
         })
       );
+        await step.run("update-execution-success", async () => {
+          await prisma.execution.update({
+            where: {
+              workflowId: workflowid,
+              inngestEventId,
+            },
+            data: {
+              status: "SUCCESS",
+              output:context,
+              completedAt:new Date(),
+            },
+          });
+        });
+    
       return {
         workflowid,
         result: context,
       };
     } catch (error) {
+      const errorStack = error instanceof Error ? error.stack : undefined;
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
       await publish(
@@ -112,6 +169,20 @@ export const executeWorkflow = inngest.createFunction(
           errorMessage: errorMessage,
         })
       );
+        await step.run("update-execution-failed", async () => {
+          await prisma.execution.update({
+            where: {
+              workflowId: workflowid,
+              inngestEventId,
+            },
+            data: {
+              status: "FAILED",
+              error: errorMessage,
+              errorStack:errorStack,
+              completedAt:new Date(),
+            },
+          });
+        });
       throw error;
     }
   }
@@ -120,7 +191,7 @@ export const workflowCancellationHandler = inngest.createFunction(
   { id: "handle-workflow-cancellation" },
   { event: "workflow/cancel.workflow" },
   async ({ event, publish }) => {
-    const { workflowId } = event.data;
+    const { workflowId,executionId } = event.data;
 
     // 1. Update Workflow Status
     await publish(
@@ -136,25 +207,33 @@ export const workflowCancellationHandler = inngest.createFunction(
     });
 
     if (!workflow) return;
-     const events = [
-       {
-         channel: WORKFLOW_CHANNEL_ID,
-         topic: "workflowstatus",
-         data: {
-           workflowId: workflowId,
-           status: "cancelled",
-         },
-       },
-       ...workflow.Nodes.map((node) => ({
-         channel: WORKFLOW_CHANNEL_ID,
-         topic: "nodestatus",
-         data: {
-           nodeId: node.id,
-           status: "cancelled",
-         },
-       })),
-     ];
-  if (events.length > 0) {
-    await publish(events as any)
-  }
+    await Promise.all(
+      workflow.Nodes.map((node) =>
+        publish({
+          channel: WORKFLOW_CHANNEL_ID,
+          topic: "nodestatus",
+          data: {
+            nodeId: node.id,
+            status: "cancelled",
+          },
+        })
+      )
+    );
+
+      await step.run("update-execution-cancelled", async () => {
+        if(executionId){
+        await prisma.execution.update({
+          where: {
+            workflowId: workflowId,
+            id: executionId,
+          },
+          data: {
+            status: "CANCELLED",
+            completedAt: new Date(),
+          },
+        });
+   }
+   
+  });
+   
 })
