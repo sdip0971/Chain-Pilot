@@ -650,4 +650,4 @@ export default function Page() {
 
 ---
 
-This documentation covers each selected file’s purpose, structure, and key functionality. It clarifies relationships between pages, layouts, and API routes, ensuring you understand how the app initializes, protects routes, and integrates external services.
+This documentation covers each selected file’s purpose, structure, and key functionality. It clarifies relationships between pages, layouts, and API routes, ensuring you understand how the app initializes, protects routes, and integrates external services
