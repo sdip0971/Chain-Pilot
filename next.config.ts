@@ -20,8 +20,24 @@ const nextConfig: NextConfig = {
         permanent:false
       }
     ]
-  }
+  },
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+        async_hooks: false,
+        perf_hooks: false,
+        child_process: false,
+      };
+    }
+    return config;
+  },
+
 };
+
 
 export default withSentryConfig(nextConfig, {
   // For all available options, see:
