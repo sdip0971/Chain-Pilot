@@ -244,12 +244,16 @@ timeout: 20000,
             userId : ctx.auth.user.id
           }
          })
+        
+
          await inngest.send({
-          name : "workflow/execute.workflow",
-          data : {
-            workflowId : input.id
-          } 
-         })
+           name: "workflow/execute.workflow",
+           data: {
+             workflowId: input.id,
+             
+           },
+         });
+        
          return workflow;
 
     })
