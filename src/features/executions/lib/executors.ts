@@ -10,6 +10,7 @@ import type { NodeExecutor } from "./execution-registry";
 import ky, { Options as KyOptions } from "ky";
 import Handlebars from "handlebars";
 import prisma from "@/lib/db";
+import { decrypt } from "@/lib/encryption";
 
 
 Handlebars.registerHelper("json", (context) => {
@@ -23,7 +24,7 @@ export const manualtriggerexecutor: NodeExecutor<MANUAL_TRIGGER_DATA> = async ({
   context,
   step,
 }) => {
-  return await step.run("manual-trigger", async () => context);
+  return context
 };
 
 
@@ -103,6 +104,7 @@ export const GeminiExecutor: NodeExecutor<GEMINI_TRIGGER_DATA> = async ({
   data,
   userId
 }) => {
+
   const { systemPrompt, userPrompt } = data;
     let apiKey;
   console.log(data.credentialId)
@@ -111,16 +113,16 @@ export const GeminiExecutor: NodeExecutor<GEMINI_TRIGGER_DATA> = async ({
    }
    if (data.credentialId) {
 
-     const credential = await step.run("fetch-gemini-credential", async () => {
-       return await prisma.credentials.findUnique({
+     
+       const credential= await prisma.credentials.findUnique({
          where: { id: data.credentialId ,
           userId:userId
          },
        });
-     });
+     
 
      if (credential?.value) {
-       apiKey = credential.value;
+       apiKey = decrypt(credential.value);
      }
    }
    if (!apiKey) {
@@ -195,19 +197,12 @@ export const AnthropicExecutor: NodeExecutor<Anthropic_TRIGGER_DATA> = async ({
        throw new NonRetriableError("Missing GOOGLE_GENERATIVE_AI_API_KEY");
      }
      if (data.credentialId) {
-       const credential = await step.run(
-         "fetch-gemini-credential",
-         async () => {
-           return await prisma.credentials.findUnique({
-             where: { id: data.credentialId,
-              userId
-              },
-           });
-         }
-       );
+       const credential = await prisma.credentials.findUnique({
+         where: { id: data.credentialId, userId: userId },
+       });
 
        if (credential?.value) {
-         apiKey = credential.value;
+        apiKey = decrypt(credential.value);
        }
      }
      if (!apiKey) {
@@ -260,16 +255,12 @@ export const OPENAIExecutor: NodeExecutor<OPENAI_TRIGGER_DATA> = async ({
      throw new NonRetriableError("Missing GOOGLE_GENERATIVE_AI_API_KEY");
    }
    if (data.credentialId) {
-     const credential = await step.run("fetch-gemini-credential", async () => {
-       return await prisma.credentials.findUnique({
-         where: { id: data.credentialId,
-          userId
-          },
-       });
-     });
+    const credential = await prisma.credentials.findUnique({
+      where: { id: data.credentialId, userId: userId },
+    });
 
      if (credential?.value) {
-       apiKey = credential.value;
+          apiKey = decrypt(credential.value);
      }
    }
    if (!apiKey) {

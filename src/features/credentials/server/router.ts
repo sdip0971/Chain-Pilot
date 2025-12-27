@@ -7,6 +7,7 @@ import { pagination } from "@/config/constants";
 import { CredentialsType, NodeType } from "@/generated/prisma/enums";
 import type {Connection } from "@/generated/prisma/client";
 import { inngest } from "@/inngest/client";
+import { encrypt } from "@/lib/encryption";
 export const CredentialsRouter = createTRPCRouter({
   create: premiumProcedure
     .input(
@@ -23,7 +24,7 @@ export const CredentialsRouter = createTRPCRouter({
           name: generateSlug(3),
           userId: ctx.auth.user.id,
           type,
-          value,
+          value:encrypt(value),
         },
       });
     }),
@@ -68,7 +69,7 @@ export const CredentialsRouter = createTRPCRouter({
             },data:{
               name,
               type,
-              value
+              value:encrypt(value)
             }
 
           })
@@ -76,19 +77,7 @@ export const CredentialsRouter = createTRPCRouter({
       );
     }),
 
-  updateName: premiumProcedure
-    .input(z.object({ id: z.string(), name: z.string() }))
-    .mutation(async ({ ctx, input }: any) => {
-      return prisma.workflow.update({
-        where: {
-          id: input.id,
-          userId: ctx.auth.user.id,
-        },
-        data: {
-          name: input.name,
-        },
-      });
-    }),
+
   getOne: premiumProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }: any) => {
