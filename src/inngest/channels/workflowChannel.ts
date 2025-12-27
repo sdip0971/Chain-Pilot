@@ -1,5 +1,5 @@
 import { topic, channel } from "@inngest/realtime";
-import { inngest } from "../client";
+
 export const httpRequestChannel = channel("http-request-executor").addTopic(
   topic("status").type<{
     nodeId: string;
@@ -20,12 +20,3 @@ export const workflowChannel = channel("workflow-execution").addTopic(
       errorMessage?:string;
     }>()
   );
-export async function cancelWorkflowAction(workflowId: string,executionId?:string) {
-  await inngest.send({
-    name: "workflow/cancel.workflow",
-    data: {
-      workflowId,
-      executionId,
-    },
-  });
-}
