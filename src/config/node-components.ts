@@ -6,7 +6,7 @@ import { OpenAINode } from "@/features/executions/components/Openai/node";
 import { GoogleFormTriggerNode } from "@/features/triggers/components/googleformtrigger/node";
 import { ManualTriggerNode } from "@/features/triggers/components/manual-trigger/node";
 import { StripeTriggerNode } from "@/features/triggers/components/stripetrigger/node";
-import { NodeType } from "@/generated/prisma/enums"
+import { NodeType } from "@prisma/clients"
 import type { NodeTypes } from "@xyflow/react";
 
 export const nodeComponents = {

@@ -1,5 +1,5 @@
 "use client";
-import type { Workflow } from "@/generated/prisma/client"
+import type { Workflow } from "@prisma/client"
 import EntityHeader, {
   EmptyView,
   EntityContainer,

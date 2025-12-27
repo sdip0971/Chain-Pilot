@@ -1,5 +1,5 @@
 
-import {Node, Connection } from "@/generated/prisma/client";
+import {Node, Connection } from "@prisma/client";
 import { inngest } from "./client";
 import { createId } from "@paralleldrive/cuid2";
 //why topological sort 

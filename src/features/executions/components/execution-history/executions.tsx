@@ -1,6 +1,6 @@
  "use client";
-import type {  Credentials, Execution, ExecutionStatus, Workflow } from "@/generated/prisma/client"
-import { CredentialsType } from "@/generated/prisma/enums";
+import type {  Credentials, Execution, ExecutionStatus, Workflow } from "@prisma/client"
+import { CredentialsType } from "@prisma/clients";
 import EntityHeader, {
   EmptyView,
   EntityContainer,

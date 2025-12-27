@@ -1,4 +1,4 @@
-import { Node, NodeType } from "@/generated/prisma/client";
+import { Node, NodeType } from "@prisma/client";
 import type { Anthropic, GetStepTools,Inngest } from "inngest";
 import { Anthropic_TRIGGER_DATA, AnthropicExecutor, GEMINI_TRIGGER_DATA, GeminiExecutor, GoogleForm_TRIGGER_DATA, GoogleFormtriggerexecutor, HTTP_TRIGGER_DATA, httprequestexecutor, MANUAL_TRIGGER_DATA, manualtriggerexecutor, OPENAI_TRIGGER_DATA, OPENAIExecutor, Stripe_TRIGGER_DATA, Stripetriggerexecutor } from "./executors";
 import type { Realtime } from "@inngest/realtime";

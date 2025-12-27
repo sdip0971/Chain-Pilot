@@ -11,7 +11,7 @@ import { Suspense } from "react";
 import { toast } from "sonner";
 
 import { useCredentialparams } from "./use-credential-params";
-import { CredentialsType } from "@/generated/prisma/enums";
+import { CredentialsType } from "@prisma/clients";
 
 const useSuspenseCredentials = () => {
   const [params, setParams] = useCredentialparams();

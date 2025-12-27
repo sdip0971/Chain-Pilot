@@ -1,6 +1,6 @@
  "use client";
-import type {  Credentials, Workflow } from "@/generated/prisma/client"
-import { CredentialsType } from "@/generated/prisma/enums";
+import type {  Credentials, Workflow } from "@prisma/client"
+import { CredentialsType } from "@prisma/client";
 import EntityHeader, {
   EmptyView,
   EntityContainer,
@@ -14,8 +14,6 @@ import EntityHeader, {
 import EntityComponents from "@/components/ui/mycomponents/entity-components";
 import { useEntitySearch } from "@/hooks/use-entity-search";
 import { useUpgradeModal } from "@/hooks/use-upgrade-modals";
-
-
 import { useRouter } from "next/navigation";
 import { useQueryState } from "nuqs";
 import React, { Children } from "react";

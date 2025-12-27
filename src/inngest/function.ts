@@ -8,7 +8,7 @@ import {
   WORKFLOW_CHANNEL_ID,
   workflowChannel,
 } from "./channels/workflowChannel";
-import { Node } from "@/generated/prisma/client";
+import { Node } from "@prisma/client";
 
 export const executeWorkflow = inngest.createFunction(
   {

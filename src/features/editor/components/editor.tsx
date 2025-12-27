@@ -32,7 +32,7 @@ import { nodeComponents } from "@/config/node-components";
 import { AddNodeButton } from "./add-node-button";
 import { useAtomValue, useSetAtom } from "jotai";
 import { editorAtom } from "../store/atoms";
-import { NodeType } from "@/generated/prisma/enums";
+import { NodeType } from "@prisma/clients";
 import ExecuteButton from "@/components/ui/mycomponents/execute-button";
 
 

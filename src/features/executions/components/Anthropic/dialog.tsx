@@ -32,7 +32,7 @@ import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
-import { CredentialsType } from "@/generated/prisma/enums";
+import { CredentialsType } from "@prisma/clients";
 import { useCredentialsByType } from "@/hooks/use-credentials";
 
 const availableModels = [

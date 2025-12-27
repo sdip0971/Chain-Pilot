@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ExecutionStatus } from "@/generated/prisma/enums";
+import { ExecutionStatus } from "@prisma/clients";
 import { useSuspenseIndividualExecution } from "@/hooks/use-execution";
 import { CheckCircle2, Loader2, XCircle, ChevronDown } from "lucide-react";
 

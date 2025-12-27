@@ -4,7 +4,7 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import prisma from "./db";
 // import { polarClient } from "./polar";
 // If your Prisma file is located elsewhere, you can change the path
-import { PrismaClient } from "@/generated/prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { TruckElectric } from "lucide-react";
 function getTrustedOrigins(): string[] {
   // Example ENV format: TRUSTED_ORIGINS="http://localhost:3000,http://192.168.100.107:3000"

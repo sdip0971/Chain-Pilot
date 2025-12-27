@@ -14,7 +14,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { NodeType } from "@/generated/prisma/enums";
+import { NodeType } from "@prisma/clients";
 
 
 

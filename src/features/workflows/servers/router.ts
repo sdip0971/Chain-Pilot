@@ -4,8 +4,8 @@ import prisma from "@/lib/db";
 import z, { string } from "zod";
 import type {Node,Edge} from "@xyflow/react"
 import { pagination } from "@/config/constants";
-import { NodeType } from "@/generated/prisma/enums";
-import type {Connection } from "@/generated/prisma/client";
+import { NodeType } from "@prisma/clients";
+import type {Connection } from "@prisma/client";
 import { inngest } from "@/inngest/client";
 export const workflowsRouter = createTRPCRouter({
   create: premiumProcedure.mutation(async ({ ctx }: any) => {
