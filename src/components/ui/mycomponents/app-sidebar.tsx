@@ -53,6 +53,7 @@ function AppSidebar() {
   // const {HasActiveSubscription,isLoading} =useHasActiveSubscription()
     const router =useRouter()
     const pathname = usePathname();
+    const { data: session } = authClient.useSession();
   return (
     <div>
       <Sidebar collapsible="icon">
@@ -103,18 +104,18 @@ function AppSidebar() {
         <SidebarFooter>
           <SidebarMenu>
             {/* {!HasActiveSubscription && !isLoading && ( */}
-              <SidebarMenuButton
-                tooltip="Upgrade to Pro"
-                className="gap-x-4 h-10 px-4"
-                // onClick={() => {
-                //   authClient.checkout({
-                //     slug: "pro",
-                //   });
-                // }}
-              >
-                <CreditCardIcon className="h-4 w-4" />
-                <span>Upgrage to Pro</span>
-              </SidebarMenuButton>
+            <SidebarMenuButton
+              tooltip="Upgrade to Pro"
+              className="gap-x-4 h-10 px-4"
+              // onClick={() => {
+              //   authClient.checkout({
+              //     slug: "pro",
+              //   });
+              // }}
+            >
+              <CreditCardIcon className="h-4 w-4" />
+              <span>Upgrage to Pro</span>
+            </SidebarMenuButton>
             {/* )} */}
             <SidebarMenuItem>
               <SidebarMenuButton
@@ -125,12 +126,19 @@ function AppSidebar() {
                 <CreditCardIcon className="h-4 w-4" />
                 <span>Billing Portal</span>
               </SidebarMenuButton>
+
               <SidebarMenuButton
                 tooltip="Logout"
-                className="gap-x-4 h-10 px-4"
-                onClick={async() => { await authClient.signOut()}}
+                className="gap-x-4 h-10 px-4 text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/10"
+                onClick={async () => {
+                  // 1. Sign out
+                  await authClient.signOut();
+                  // 2. Redirect explicitly
+                  router.push("/login");
+                  router.refresh();
+                }}
               >
-                <CreditCardIcon className="h-4 w-4" />
+                <LogOutIcon className="size-4" />
                 <span>Logout</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
