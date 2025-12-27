@@ -21,7 +21,7 @@ export const executeWorkflow = inngest.createFunction(
           where: {
             inngestEventId: event.data.event.id,
       
-            status: { not: "RUNNING" },
+            status: { not: "CANCELLED" },
           },
           data: {
             status: "FAILED",
@@ -63,7 +63,7 @@ export const executeWorkflow = inngest.createFunction(
         data: {
           workflowId: workflowid,
           inngestEventId,
-          status:"CANCELLED"
+          status:"RUNNING"
         },
       });
     });
