@@ -33,7 +33,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 // ✅ Import Enum and Hook
-import { CredentialsType } from "@prisma/clients";
+import { CredentialsType } from "@prisma/client";
 import { useCredentialsByType } from "@/hooks/use-credentials";
 
 const availableModels = [

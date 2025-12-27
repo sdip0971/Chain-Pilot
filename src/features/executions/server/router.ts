@@ -4,7 +4,7 @@ import prisma from "@/lib/db";
 import z, { string } from "zod";
 import type {Node,Edge} from "@xyflow/react"
 import { pagination } from "@/config/constants";
-import { CredentialsType, NodeType } from "@prisma/clients";
+import { CredentialsType, NodeType } from "@prisma/client";
 import type {Connection } from "@prisma/client";
 import { inngest } from "@/inngest/client";
 export const ExecutionRouter = createTRPCRouter({

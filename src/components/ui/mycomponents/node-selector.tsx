@@ -14,7 +14,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { NodeType } from "@prisma/clients";
+import { NodeType } from "@prisma/client";
 
 
 
